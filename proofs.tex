@@ -1,0 +1,80 @@
+
+\section{Algorithm Runtime and Accuracy Bounds}
+
+\begin{theorem}
+Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\ip{\mathbf{x}_t}{\mathbf{e}_t}$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
+$$\mathcal{O}\left(\frac{l_{max}^2 |\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)\right)$$
+\end{theorem}
+
+\begin{proof}
+We will prove this statement by first considering the single estimator $\pzltest$ for some $l$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
+
+Consider the estimator $S_{t, i}^{\ell}$. We have already shown that $\EE\left[S_{t, i}^{\ell}\right] = \pzlt - \left< \sigma, \qest{l} \right>$. 
+Let $X_i = S_{t, i}^{\ell}$ and $X = \sum_{i=1}^n X_i$:
+
+\begin{align*}
+&\mathbb{P}\left[ | \pzltest - \pzlt| \geq  \epsilon \pzlt \right] \\
+&\leq \mathbb{P}\left[ |X -\mathbb{E}[X]| \geq \epsilon \mathbb{E}[X]\right] 
+\end{align*}
+
+Thus, since $X_i \in [-l|\mathbf{z}|_1\delta_r, l|\mathbf{z}|_1\delta_r]$ by Lemma 3 and $E[X_i] \geq \delta$, we let $c = l|\mathbf{z}|_1\delta_r$, $a = \delta$ and by Lemma 6
+ $n \geq \frac{4l_{max}^2|\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)$ random walks to ensure that $\mathbb{P}\left[ | \pzltest  -  \pzlt|  \geq  \epsilon  \pzlt \right] \leq p_{fail}$ holds for $l_{max}$ sets of $\pzltest$.
+Hence, the total work in the forward estimate to ensure 
+$\mathbb{P}\left[ | \pzltest  -  \pzlt]|  \geq  \epsilon  \pzlt \right] \leq p_{fail}$ for $l_{max}$ sets of estimators $\pzltest$ is
+$$\mathcal{O}\left(\frac{l_{max}^2 |\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)\right)$$
+\end{proof}
+
+\begin{lemma}
+$\delta_r =\sqrt[3]{\frac{\epsilon^2\delta^2}{l_{max}\ln(l_{max}/p_{fail}) } } $ to balance the reverse push and forward walk work
+\end{lemma}
+\begin{proof}
+We know that the work from the reverse push operation is given by $O\left(\frac{l_{max}}{\delta_r}\right)$.
+Hence we solve the equation below for $\delta_r$.
+\[\frac{l_{max}}{\delta_r} = \frac{l_{max}^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right) \]
+Thus we obtain
+\begin{equation*}
+\delta_r = \sqrt[3]{\frac{\epsilon^2\delta^2}{l_{max}\ln(l_{max}/p_{fail}) } }    
+\end{equation*}
+\end{proof}
+
+
+
+\
+\begin{lemma} 
+Let the random variable $X_i \in [-c, c]$ with $|\mathbb{E}[X_i]| \geq a$. Then $X = \sum_{i= 1}^n X_i$ satisfies
+$\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X_i] ] \leq p_{fail}$ provided that
+$n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$.
+\end{lemma}
+
+\begin{proof}
+Let $X = \sum_{i=1}^n X_i$.  Since $E[X] = nE[X_i]$, $E[X] \geq n \epsilon a$. Let $t = \epsilon a$.
+\begin{align*}
+\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] 
+&\leq \mathbb{P}\left[|X - \mathbb{E}[X]| \geq nt \right] \\
+&= \mathbb{P}\left[\left|\frac{1}{n}X - \frac{1}{n}\mathbb{E}[X]\right| \geq t \right]  
+\end{align*}
+Applying Hoeffding's inequality to the rightmost term above, we obtain
+  \[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2t^2}{\sum_{i=1}^n(b_i - a_i)^2}\right) \]
+  Hence substituting the values for $t$ and $b_i = c$, $a_i = -c$ gives us:
+\[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2\epsilon^2a^2}{n(4c^2)}\right) \]
+Now set this upperbound to $p_{fail}$ to obtain the relation:
+$$ \frac{n \epsilon^2 a^2}{4c^2} = \ln\left(\frac{2}{p_{fail}} \right) $$
+Thus, for $n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$, we are guaranteed that $\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq p_{fail}$.
+
+Note that if we require the failure conditions to hold for $l_{max}$ sets of $X's$, then we perform a simple union bound which adds a $l_{max}$ in the $\frac{2}{p_{fail}}$ term.
+\end{proof} 
+
+\subsection{Useful Tail Inequalities}
+Suppose $X_i$ are i.i.d with $\mathbb{E}[X_i]=\mu$, $Var(X_i)=\sigma^2$ and $X_i\in [a,b]$. Then:
+\begin{itemize}
+\item Hoeffding's Inequality:
+\begin{equation*}
+\mathbb{P}\left[\left|\left(\frac{1}{n}\sum_{i=1}^nX_i\right)-\mu \right|\geq\epsilon|\mu|\right]\leq
+2\exp\left(\frac{-2n\epsilon^2\mu^2}{(b-a)^2}\right)
+\end{equation*}
+\item Bernstein's Inequality: 
+\begin{equation*}
+\mathbb{P}\left[\left|\left(\frac{1}{n}\sum_{i=1}^nX_i\right)-\mu\right|\geq\epsilon|\mu|\right]\leq
+2\exp\left(\frac{-n\epsilon^2\mu^2}{2\sigma^2+\frac{2}{3}\epsilon|\mu|(b-a)}\right)
+\end{equation*}
+\end{itemize}

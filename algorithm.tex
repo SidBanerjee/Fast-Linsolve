@@ -1,0 +1,233 @@
+\section{Bidirectional Algorithm for Solving Linear Systems}
+
+We now describe our algorithm for computing an estimate $\pzltest$ for $\pzlt =\ip{\mathbf{z}}{Q^{\ell}\mathbf{e}_t}$.
+Drawing parallels to the case where $Q$ is a stochastic matrix and $\mathbf{z}$ an element in the $n$-dimensional simplex, we define a (weighted) directed graph $G_Q(V,E)$ with states $V = [n]$, and edges $(i,j)\in E$ if $Q_{ij}\neq 0$ (with weight $Q_{ij}$).
+We refer to the label for a node $v\in V$ (i.e., a dimension $v\in[n]$) as a \emph{dimension-index}, and the exponent of $Q$ as the \emph{step-index}.
+We also use $\mathbf{e}_v$ denote the indicator for index $v$ (i.e., $\mathbf{e}_v(i) = \mathds{1}_{i=v}$). 
+
+Our algorithm for computing $\pzltest$ follows the general outline given in \cite{banerjee2015fast} for computing transition probabilities in Markov chains.
+It comprises of two distinct components:
+The first component, which we refer to as \texttt{\texttt{REVERSE-WORK}}, performs a series of \emph{local} dynamic programming iterations, starting from the dimension-index $t$ and step-index $\ell=0$, and working backwards to compute and \sbcomment{incomplete}. 
+Once this estimate is generated, we take the inner product of the solution estimate $\qest{\ell}$ with the vector $\mathbf{z}$. The second algorithm samples forward walks from $\mathbf{z}$ towards the target node $t$, using the residuals from the first algorithm to add further contributions.
+
+\subsection{Solving Linear Systems via Local DP Iterations}
+\label{ssec:reverse}
+
+One approach towards estimating $\pzlt$ is via dynamic programming in `reverse', starting from the dimension-index $t$.
+Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
+In this section we describe a \texttt{REVERSE-PUSH} algorithm to perform these local power operations, starting with a residual unit contribution at the target node. The vector operations propagate this contribution mass back, and by multiplying by $Q$, we determine the contributions from nodes a step back to their subsequent neighbors. Originally from Andersen \cite{andersen2007local}, we define this below for clarity. The original algorithm was designed for the personal PageRank problem and thus for a stochastic matrix $Q$. 
+We generalize the invariant proved in \cite{andersen2007local, banerjee2015fast} and show that the invariant that holds for any matrix $Q$. It does not require the assumptions of full rank that we imposed on $A$ and thus $Q$.
+ 
+The \texttt{REVERSE-PUSH} operation is a standard dynamic programming iteration which is used to compute an estimate $\pzltest$ by working `in reverse' from $t$. 
+Essentially,\texttt{REVERSE-PUSH} is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$ -- instead of performing an full power-iteration, it adaptively exploits any sparsity in the computation.
+This operation was defined in the form given below in \cite{andersen2007local}, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
+
+For each step-index $\ell\in\{0,1,\ldots,\lm\}$, we store two vectors: the estimate vector $\qest{\ell}$ and the residual vector $\res{\ell}$.
+Given any dimension-index $v\in[n]$ and step-index $\ell\in[\lm]$, the \texttt{REVERSE-PUSH} operation iteratively updates these vectors as follows:
+\begin{algorithm}[!ht]
+\caption{\texttt{REVERSE-PUSH}$(v,\ell)$}
+\label{alg:push}
+\begin{algorithmic}[1]
+\REQUIRE Matrix $Q$, estimates $\qest{\ell}$, residuals $\res{\ell},\res{\ell+1}$
+\RETURN New estimates $\qestnew{\ell}$ and residuals $\resnew{\ell}$ computed as:
+\begin{align*}
+	\qestnew{\ell} &\leftarrow \qest{\ell} + \ip{\res{\ell}}{\mathbf{e}_v}\mathbf{e}_v \\
+	\resnew{\ell} &\leftarrow \res{\ell} - \ip{\res{\ell}}{\mathbf{e}_v}\mathbf{e}_v \\
+	\resnew{\ell+1} &\leftarrow \res{\ell+1} + \ip{\res{\ell}}{\mathbf{e}_v}(Q\mathbf{e}_v)
+\end{align*}	
+\end{algorithmic}
+\end{algorithm}    
+
+\sbedit{INCOMPLETE ; which store the \emph{estimates} and the \emph{residuals} for $(Q)^{\ell}\mathbf{e}_t$. 
+We define a reverse push algorithm in the subsequent section. }
+
+
+\begin{algorithm}[ht]
+\caption{\texttt{REVERSE-WORK}$(Q, \lm, \delta_r)$}
+\label{alg:rwork}
+\begin{algorithmic}[1]
+\REQUIRE Matrix $Q$, maximum step-index $\lm$, target residual threshold $\delta_r$
+\STATE{Initialize all residual $\res{\ell}$ and estimate vectors $\qest{\ell}, \ell\in[\lm]$ to $0$; set $\res{0} = \mathbf{e}_t$}
+\FOR{ $\ell \in \{0, 1, 2, ... \lm\}$ }
+\WHILE{$\exists v$ such that $\left|\res{\ell}[v]\right| > \delta_r $}
+\STATE{\texttt{REVERSE-PUSH}$(v,\ell)$}
+\ENDWHILE
+\ENDFOR
+\RETURN $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$
+\end{algorithmic}
+\end{algorithm}    
+
+\begin{lemma}
+\label{lem:pushinvariant}
+After any sequence of \texttt{REVERSE-PUSH} operations, and for any $\mathbf{z}\in\setR^n$ and $\ell\leq\lm$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
+\begin{align*}
+\mathbf{p}_\mathbf{z}^{\ell}[t] &= \left< \mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k}\right> = \left< \mathbf{z}, \mathbf{q}_t^{\ell}  + \sum_{k=0}^{\ell} Q^k\mathbf{r}_t^{\ell-k}\right>
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\mathbf{z}^{\ell}[t] = \ip{\mathbf{z} }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
+Now, assuming the invariant holds at any stage with vectors $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$, and let $\{\qestnew{\ell}\}, \{\resnew{\ell}\}_{\ell\in[\lm]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(v,k)$ operation for any given $k\in[\lm]$ and $\mathbf{z}\in\setR^n$. We define:
+$$\Delta_v^{k} = \left( \mathbf{\tilde{q}}_t^{\ell} + \sum_{i=0}^{\ell}  (Q^i)\resnew{\ell-i} \right)- \left( \qest{\ell} + \sum_{i=0}^{\ell}  (Q^i) \mathbf{r}_t^{\ell-i}\right)$$
+Now to show that the invariant holds following \texttt{REVERSE-PUSH}$(v,k)$, it suffices to show that $\Delta_v^{k}$ is zero for any $v\in V$ and $k\in[\lm]$. 
+
+We now have three cases: $(i)$ if $\ell < k$, then the \texttt{REVERSE-PUSH}$(v,k)$ operation does not affect the residual or estimate vectors $\{\mathbf{q}_t^{i},\mathbf{r}_t^{i}\}_{i<k}$, and hence 
+$\Delta_v^k=0$;
+$(ii)$ If $\ell = k$, we have:
+\begin{align*}
+\Delta_v^{k} &= \left( \mathbf{\tilde{q}}_t^{k} +  \mathbf{\tilde{r}}_t^{k}\right)- \left( \mathbf{q}_t^{k} + \mathbf{r}_t^{k}\right)\\
+&= \mathbf{q}_t^{k} + \left<\mathbf{r}_t^{k}, \mathbf{e}_v \right>\mathbf{e}_v +  \mathbf{r}_t^{k} - \left<\mathbf{r}_t^{k}, \mathbf{e}_v \right>\mathbf{e}_v - \mathbf{q}_t^{k} - \mathbf{r}_t^{k}
+= 0
+\end{align*}
+$(iii)$ Finally, when $\ell > k$, we have: 
+\begin{align*}
+\Delta_v^k &= Q^{\ell-k}\left( \mathbf{\tilde{r}}_t^k - \mathbf{r}_t^k \right) + Q^{\ell-k-1}\left( \mathbf{\tilde{r}}_t^{k+1} - \mathbf{r}_t^{k+1} \right)\\
+&= -\left<\mathbf{r}_t^k, \mathbf{e}_v \right>Q^{\ell-k}\mathbf{e}_v  + \left<\mathbf{r}_t^k, \mathbf{e}_v \right>Q^{\ell-k-1}\left(Q\mathbf{e}_v \right)
+%&= -\left<\mathbf{r}_t^k, \mathbf{e}_v \right>\mathbf{e}_v(Q^T)^{\ell-k} + \left<\mathbf{r}_t^k, \mathbf{e}_v \right>\mathbf{e}_v (Q^T)^{\ell-k} 
+= 0
+\end{align*}
+Hence we have shown that the invariant is preserved for any sequence of reverse push operations.
+\end{proof}
+
+The reverse walk generates a series of residuals that we can use to estimate the remaining contributions to $\pzlt$. Using the forward walk estimator and an initial distribution induced by the source vector $\mathbf{z}$, we add the randomly sampled products weighted by their probability of occurrence.
+
+\subsection{Solving Linear Systems via MCMC Sampling}
+\label{ssec:forwardwork}
+
+Recall we defined $Q = G^T$. Suppose $Q$ is a sub-stochastic matrix (i.e., $||Q||_{\infty} = ||G||_{1} < 1$) \sbedit{and has spectral norm $\rho(Q) < 1$ (why?)}.
+The general idea of the forward walk estimator is that the inner product $\ip{\mathbf{z}}{Q^k\res{\ell-k}}$ is equal to computing the sum $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \mathbf{z}[v_0] \mathbf{r}_t^{\ell-k}[v_k]$. 
+The von Neumann-Ulam scheme works by interpreting this sum as an expectation over a $k$-step random walk $W = (V_0,V_1,\ldots,V_k)$ on $G^{k+1}$, specified as follows:
+\begin{itemize}[nosep,leftmargin=*]
+\item The starting node $V_0$ is sampled from $\sigma_z = \{|\mathbf{z}[i]|/||\mathbf{z}||_1\}_{i\in V}$, and has an associated weight $w_{V_0} = sign(\mathbf{z}[V_0])||\mathbf{z}||_1$
+\item The transition probability matrix for the walk is given by $Q^s = \{|Q_{ij}|/||Q_i||_1\}$ (where $||Q_i||_1$ is the $1$-norm of the $i^{th}$ row of $Q$.
+\item Each edge $(i,j)\in E$ has associated weight $w_{ij} = sign(Q_ij)||Q_i||_1$. 
+\item The `score' for a walk $W$ is the product of weights of traversed edges, i.e.,
+$$S_t^k = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}} $$
+\end{itemize}
+%We can then sample paths according to $Q^s$ and weight each of these products by the normalization factors we used to construct $Q^s$ and $\sigma$ from $Q$ and $\mathbf{z}$. There are two aspects to normalizing $Q$ and $\mathbf{z}$, the sign, and ensuring row sums are equal to $1$. By normalizing the substochastic matrix $Q$ to get the stochastic $Q^s$, we are removing a dummy state $A$ that absorbed probability for $Q$. 
+We construct $\mathbf{p}_A$ to store this leftover probability mass. 
+We sample from the distribution $\sigma (Q^s)^k$ and then weight by the normalization factors to compute $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \mathbf{z}[v_0] \mathbf{r}_t^{\ell-k}[v_k]$ as an expectation. 
+This process is explicitly described in Algorithm 3.
+
+\begin{algorithm}[ht]
+\caption{\texttt{FORWARD-SAMPLER}$(Q, \mathbf{z}, n_f, l_{max}, \{\qest{\ell}\},\{\res{\ell}\})$}
+\label{alg:fwalk}
+\begin{algorithmic}[1]
+\REQUIRE Transition matrix $Q$, source vector $\mathbf{z}$, $n_f$ number of random walks to run, the maximum steps to compute $\lm$, and estimate and residual vectors $\{\res{\ell}\}, \{\qest{\ell}\}$.
+\STATE{Construct vector $\mathbf{p}_A$ with $\pabsorb{\ell} = 1 - \left(\sum_{j=1}^n q_{ij}\right)$. $[\mathbf{p}_A]_i$ encodes the probability of transitioning to a dummy absorbing state from state $i$.}
+\STATE{Construct matrices $Q^{sign}$ and $Q^s$ with $\Qsign{\ell}{j} = sign(q_{ij})$ and $\Qstoch{\ell}{j} = |q_{ij}| \cdot \frac{1}{1-\pabsorb{\ell}}$}
+\STATE{Construct source distribution $\sigma$ with $[\sigma]_i = \frac{[\mathbf{z}]_i}{|\mathbf{z}|_1}$}
+\FOR{ $i \in [n_f]$}
+\STATE{Sample $V^0 \sim \sigma$}
+\STATE{Generate a sample path of length $\lm$ starting at $V^0$ 
+$T = \{V^0, V^1, ..., V^{\lm}\}$ using $Q^s$
+}
+\FOR{ $l \in \{1, 2, ..., \lm\}$}
+\STATE{sample $k \sim Unif[0, l]$ and compute the following}
+\begin{align*}
+z_{norm} &= sign([\mathbf{z}]_{V^0})|\mathbf{z}|_1 \\
+w_{edges} &= \prod_{j \in [0, k-1]} (1- \pabsorb{V^j})\Qsign{V^j}{V^{j+1}} \\
+S_{t, i}^{\ell} &= w_{edges}\cdot z_{norm} \cdot l \cdot \res{\ell-k}[V_k]
+\end{align*}
+\ENDFOR
+\ENDFOR
+\RETURN $\{S_{t, i}^{\ell}\}$
+\end{algorithmic}
+\end{algorithm} 
+
+Once we have the sampled scores for $n_f$ walks each of length $l$, we can combine the estimate $\ip{\mathbf{z}}{\qest{\ell}}$ with an average over the scores $\{S_{t, i}^{\ell}\}$ from to compute the overall estimator $\pzltest$.
+Again, as noted in the section describing the forward walk estimation, provided that $Q$ is substochastic with spectral norm less than $1$, we can find an induced transition matrix that is fully stochastic as well as the described normalization terms $\pabsorb{\ell}$.
+
+\begin{lemma}
+\texttt{FORWARD-SAMPLER} $(Q, \mathbf{z}, \lm, n_f, \{\qest{\ell}\}, \{\res{\ell}\})$ returns a set of variables $\{S_{i, t}^{\ell}\}$ satisfying
+$$\mathbb{E}\left[S_{i, t}^{\ell}\right] = \sum_{k=0}^{\ell} \left<(Q^T)^k\mathbf{z}, \mathbf{r}_t^{\ell-k} \right>$$
+\end{lemma}
+
+\begin{proof}
+By definition, the random variable $S_{i, t}^{\ell}$ satisfies
+\small
+$$\mathbb{E}\left[S_{i, t}^{\ell}\right] = \mathbb{E}_{k \sim Unif[0, l]}\mathbb{E}_{T \sim \sigma (Q^s)^k} \left[ w_{edges}\cdot z_{norm} \cdot l \cdot \res{\ell-k}[V_k] \right]$$
+\normalsize
+Consider the terms $w_{edges}$ and $z_{norm}$. We will find that $w_{edges}$ cancels with elements of the transition probability definition $q^s_{V^jV^{j+1}}$ and similarly for $z_{norm}$ and $\sigma$.
+\par Recall the following
+\begin{align*}
+w_{edges} &=  \prod_{j \in [0, k-1]} (1- \pabsorb{V^j})\Qsign{V^j}{V^{j+1}} \\
+\Qstoch{V^j}{V^{j+1}} &= \frac{1}{1- \pabsorb{V^j}} |q_{V^jV^{j+1}}| \\
+q_{V^jV^{j+1}} &= q^{sign}_{V^jV^{j+1}}|q_{V^jV^{j+1}}| \\
+\end{align*}
+Now consider the term $\left(\prod_{j \in [0, k-1]} q^s_{V^jV^{j+1}} \right) w_{edges}$.
+\begin{align*}
+ &\left(\prod_{j \in [0, k-1]} q^s_{V^jV^{j+1}} \right) w_{edges} \\
+ &= \prod_{j \in [0, k-1]} (1- \pabsorb{V^j})\Qsign{V^j}{V^{j+1}} \frac{1}{1-\pabsorb{V^j}} |q_{V^jV^{j+1}}| \\
+ &= \prod_{j \in [0, k-1]} q_{V^jV^{j+1}}
+\end{align*}.
+Similarly, $z_{norm} = sign([\mathbf{z}]_{V^0})||\mathbf{z}||_1$ and combined with the observation $\left([\mathbf{z}^{sign}]_{V^0} \right) ||\mathbf{z}||_1 [\sigma]_{V^0} = [\mathbf{z}]_{V^0}$, we have $z_{norm} \cdot [\sigma]_{V^0} = [\mathbf{z}]_{V^0}$.
+\par Hence, by writing the expectation explicitly as a summation of scores weighted by the probability, we find (and in the last step rewriting the expectation as a sum weighted by $\frac{1}{\ell}$:
+\small
+\begin{align*}
+&\mathbb{E}\left[S_{i, t}^{\ell} \right] \\
+&= \mathbb{E}_{k \sim Unif[0, l]} \left[\sum_{(V^0,... V^{\ell}) \in \{V^i\}^{\ell}} \left(\prod_{j \in [0, k-1]} q^s_{V^jV^{j+1}} \right) w_{edges} z_{norm} [\sigma]_{V^0} l  \mathbf{r}_t^{\ell-k}[V_k]\right] \\
+&= 
+\mathbb{E}_{k \sim Unif[0, l]} \left[\sum_{(V^0,... V^{\ell}) \in \{V^i\}^{\ell}} \left(\prod_{j \in [0, k-1]} q_{V^jV^{j+1}} \right)  l \cdot [\mathbf{z}]_{V^0} \mathbf{r}_t^{\ell-k}[V_k] \right]  \\
+&=
+\frac{1}{\ell} \sum_{k=0}^{\ell} l \left[ \sum_{(V^0,... V^{\ell}) \in \{V^i\}^{\ell}}\left(\prod_{j \in [0, k-1]} q_{V^jV^{j+1}} \right)\cdot [\mathbf{z}]_{V^0} \mathbf{r}_t^{\ell-k}[V_k] \right] 
+\end{align*}
+\normalsize
+Note  the summed term is the definition of multiplying the matrix $Q^k$ with the vector $\mathbf{z}$, and taking the inner product of this vector $(Q^T)^k\mathbf{z}$ with the residual vector $\mathbf{r}_t^{\ell-k}$.
+After canceling the $l$ we finally get:
+$$\mathbb{E}\left[S_{i, t}^{\ell}\right] = \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k} \right>$$
+\end{proof}
+
+\begin{lemma}
+\texttt{FORWARD-SAMPLER} $(Q, \mathbf{z}, \lm, n_f, \{\qest{\ell}\}, \{\res{\ell}\})$ returns a set of variables $\{S_{i, t}^{\ell}\}$ satisfying $S_{i, t}^{\ell} \in [\;-\delta_r l |\mathbf{z}|_1 ,\; \delta_r l |\mathbf{z}|_1 \;]$.
+\end{lemma}
+\begin{proof}
+By definition, we have:
+\begin{align*}
+S_{t, i}^{\ell} &= w_{edges}\cdot z_{norm} \cdot l \cdot \res{\ell-k}[V_k]
+\end{align*}
+Since we ran the reverse push section until we ensured all residuals were less than the maximum residual $\delta_r$, we know
+$\res{\ell-k}[V_k] \leq \delta_r$. Secondly, observe that $\pabsorb{V^j} \in [0, 1)$. Since $A$ and therefore $G$ must be full rank, we cannot have a row sum of $0$ and thus $\pabsorb{V^j} < 1$. Hence, since $w_{edges} = \prod_{j \in [0, k-1]} (1- \pabsorb{V^j})\Qsign{V^j}{V^{j+1}}$, $-1 \leq w_{edges} \leq 1$. Similarly, since by definition $z_{norm} = sign([\mathbf{z}]_{V^0})|\mathbf{z}|_1$, we have a similar bound $-|\mathbf{z}|_1 \leq z_{norm} \leq |\mathbf{z}|_1$.
+Thus, we know $S_{t, i}^{\ell} \leq |\mathbf{z}|_1 \cdot l \cdot \delta_r$ and 
+$S_{t, i}^{\ell} \geq - |\mathbf{z}|_1 \cdot l \cdot \delta_r$. Thus, as desired, we find $S_{i, t}^{\ell} \in [\;-\delta_r l |\mathbf{z}|_1 ,\; \delta_r l |\mathbf{z}|_1 \;]$
+
+\end{proof}
+
+\section{Bidirectional Linear System Estimator}
+\begin{algorithm}[ht]
+\caption{LINEAR-SYSTEM-ESTIMATOR $(Q, \mathbf{z}, t, \lm, n_f, \delta_r)$}
+\label{alg:linearsysest}
+\begin{algorithmic}[1]
+\REQUIRE $Q$ and source vector $\mathbf{z}$ defining the system $\mathbf{x} = G \mathbf{x} + \mathbf{z}$, $t$ is the target solution vector component. $n_f$ number of random walks to run, the maximum steps to compute $\lm$.
+\STATE{$\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-WORK}$(Q, \lm, \delta_r)$}
+\STATE{$\{S_{i, t}^{\ell}\}$ = \texttt{FORWARD-SAMPLER} $(Q, \mathbf{z}, \lm, n_f, \{\qest{\ell}\}, \{\res{\ell}\})$}
+\FOR{ $l \in \{1, 2, ..., \lm\}$}
+\STATE{$\pzlt = \ip{\mathbf{z}}{\qest{\ell}} + \frac{1}{n_f} \sum_{i=0}^{n_f} S_{i,t}^{\ell}$}
+\ENDFOR
+\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
+\end{algorithmic}
+\end{algorithm} 
+
+\begin{lemma}
+LINEAR-SYSTEM-ESTIMATOR computes an unbiased estimator of $\pzlt$
+\begin{align*}
+\pzlt &=  \left< (Q^T)^{\ell} \mathbf{z}, \mathbf{e}_t \right>= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<(Q^T)^k\mathbf{z} , \mathbf{r}_t^{\ell-k}\right>\\
+&= \mathbb{E}\left[\hat{\mathbf{p}}_\mathbf{z}^{\ell}[t] \right]
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+By definition of the estimator $\pzltest$ and linearity of the expectation operator:
+\begin{align*}
+\mathbb{E}\left[\pzltest\right] &= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \frac{1}{n_f}\sum_{i=1}^{n_f} \mathbb{E}\left[S_{i, t}^{\ell}\right] \\
+&= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \mathbb{E}\left[S_{i, t}^{\ell}\right]
+\end{align*}
+
+From Lemma 2 concerning $\mathbb{E}\left[S_{i, t}^{\ell}\right]$, we obtain:
+\begin{align*}
+\mathbb{E}\left[\pzltest \right] = \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<(Q^T)^k\mathbf{z}, \mathbf{r}_t^{\ell-k}\right>
+\end{align*}
+Recall from Lemma 1, that for any matrix $Q$ and after any sequence of reverse push operations, $\mathbf{p}_\mathbf{z}^{\ell}[t] = \left<\mathbf{z}, Q^{\ell} \mathbf{e}_t \right>$ obeys the invariant: 
+$$\pzlt = \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k}\right>$$
+Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
+\end{proof}

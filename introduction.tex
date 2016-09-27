@@ -1,0 +1,28 @@
+\section{Introduction}
+
+\section{Transformation from Original System}
+
+\subsection{Basic Problem and Notation}
+
+Unless specified otherwise, we use boldface letters (e.g. $\mathbf{x},\mathbf{y}$) to denote vectors in $\setR^{n\times 1}$, and capital letters (e.g. $A,Q$) to denote matrices in $\setR^{n\times n}$.
+
+Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $x_t$ for some given index $t\in[n]$. 
+This can be done by directly solving for $\mathbf{x}$; however, we are interested in settings where $n$ is very large, and hence direct solution techniques are impractical. 
+
+\subsection{Approximation via the Truncated Neumann Series}
+
+One approach for approximating the solution to $\mathbf{y} = A\mathbf{x}$ is to expand it via the Neumann series and then compute the leading terms of the summation.
+In particular, if $A$ is positive definite, then we can find $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$. 
+
+In particular, the Richardson method selects $\gamma \in [0, \min_{||\mathbf{x}||_2} 2\mathbf{x}^TA\mathbf{x}/(\mathbf{x}^TAA^T\mathbf{x})]$ \cite{lee2014asynchronous}.
+Then $\gamma\mathbf{y} = (I - (I - \gamma A)\mathbf{x}$.
+
+Now let us examine this new system with $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
+We obtain $\mathbf{z} = (I - G)\mathbf{x}$ and $\mathbf{x} = G\mathbf{x} + \mathbf{z}$. 
+Since we ensure that $\rho(G)<1$, therefore we can write $x$ in terms of the von Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$. 
+Thus to find the $t$ component of the solution vector $\mathbf{x}$, we perform the operation $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{k=0}^\infty \ip{G^k \mathbf{z}}{\mathbf{e}_t}$. 
+Similar transformations have been used in \cite{dimov2015new, lee2014asynchronous, wu2016multi}.
+
+Solving $\ip{\mathbf{x}_t}{\mathbf{e}_t}$ amounts to solving the component $\pzlt := \ip{G^{\ell}\mathbf{z}}{\mathbf{e}_t} = \ip{\mathbf{z}}{(G^T)^{\ell}\mathbf{e}_t}$ and taking their sum for some $\ell \in \{0,\ldots,\lm\}$ where $\lm$ is a finite term truncating the power series. 
+Let $Q:=G^T$; prior work by Banerjee and Lofgren \cite{banerjee2015fast} shows how to compute $\pzlt$ for the special case where $\mathbf{z}$ is a probability vector and $Q$ is a \emph{stochastic matrix} (i.e., with all nonnegative entries, and each row summing to $1$). 
+We now extend this result for any $\mathbf{z}$ and a special class of matrices $Q$.

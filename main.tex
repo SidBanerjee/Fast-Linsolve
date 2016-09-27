@@ -1,0 +1,128 @@
+\documentclass[letterpaper,conference]{ieeeconf}  
+\IEEEoverridecommandlockouts
+\overrideIEEEmargins
+
+%\pagestyle{empty}
+
+%\usepackage[small,compact]{titlesec}
+\usepackage{amsmath,amssymb,amssymb,amsfonts,mathtools,dsfont}
+
+\usepackage{verbatim,psfrag,bbm,comment,tabularx}
+
+
+\usepackage[T1]{fontenc}
+\newcounter{mycounter}
+
+%\usepackage{fullpage} %%%%%%%%%%%%%%%%%%%%% makes difference
+
+\newcommand{\bigb}{\bigskip\noindent}
+\newcommand{\med}{\medskip\noindent} 
+\newcommand{\q}{\quad}
+\newcommand{\sU}{\mathcal{U}}
+\newcommand{\pd}{\partial}
+\newcommand{\half}{\frac12} 
+\newcommand{\RR}{{\mathcal R}}
+\newcommand{\SSS}{{\mathcal S}}
+
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{prop}{Proposition}
+\newtheorem{theorem}{Theorem} 
+\newtheorem{definition}{Definition} 
+\newtheorem{infthm}{Informal Theorem}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{5.5cm}% 
+\newcommand{\diag}{\textrm{diag}}
+\newcommand{\II}{\mathds{1}}
+\newcommand{\vnorm}[1]{\left\|#1\right\|}
+
+
+\def\EE{{\mathbb{E}}}
+\def\PP{{\mathbb{P}}}
+\def\BB{{\mathcal{B}}}
+\def\MI{{\mathcal{I}}}
+\def\setR{\mathbb{R}}
+\def\setZ{\mathbb{Z}\xspace}
+\def\setC{\mathbb{C}\xspace}
+\def\setN{\mathbb{N}\xspace}
+\def\setT{\mathbb{T}\xspace}
+\def\setP{\mathbb{P}\xspace}
+\def\setE{\mathbb{E}\xspace}
+\def\bZ{\mathbf{Z}}
+\def\bz{\mathbf{z}}
+\def\FF{\mathcal{F}}
+\def\mut{\mathcal{I}} 
+\def\TT{{\mathcal T}}
+\def\calE{{\mathcal{E}}}
+
+\newcommand{\qest}[1]{\mathbf{q}^{#1}_t}
+\newcommand{\qestnew}[1]{\widetilde{\mathbf{q}}^{#1}_t}
+\newcommand{\res}[1]{\mathbf{r}^{#1}_t}
+\newcommand{\resnew}[1]{\widetilde{\mathbf{r}}^{#1}_t}
+\newcommand{\lm}{\ell_{\max}}
+
+\newcommand{\ip}[2]{\left< #1, #2 \right>}
+\newcommand{\pzlt}{{\mathbf{p}}_\mathbf{z}^{\ell}[t]}
+\newcommand{\pzltest}{\hat{\mathbf{p}}_\mathbf{z}^{\ell}[t]}
+
+\newcommand{\Qstoch}[2]{q^s_{#1 #2}}
+\newcommand{\Qsign}[2]{q^{sign}_{#1 #2}}
+\newcommand{\pabsorb}[1]{[\mathbf{p}_A]_{#1}}
+
+\usepackage{algorithm,algorithmic}
+
+\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+\renewcommand{\algorithmicensure}{\textbf{Outputs:}}
+
+
+\usepackage{color}
+\usepackage{url}
+\newcommand{\todo}{\color{red}}
+\usepackage{color-edits}
+%\usepackage[suppress]{color-edits}
+\addauthor{ns}{blue}
+\addauthor{sb}{magenta}
+
+\usepackage[colorlinks,linkcolor=blue, citecolor=blue,urlcolor=magenta,linktocpage,plainpages=false,pdftex]{hyperref}
+
+
+
+\begin{document}
+ % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+
+% See the ``Article customise'' template for come common customisations
+
+\title{Sublinear Estimation of a Single Element in Sparse Linear Systems}
+
+%%% BEGIN DOCUMENT
+
+\author{Nitin Shyamkumar, Siddhartha Banerjee, Peter Lofgren\thanks{N. Shyamkumar is with the Department of Computer Science, and S. Banerjee is with the School of Operations Research and Information Engineering, Cornell University, USA, Email: {\tt sbanerjee@cornell.edu, nhs56@cornell.edu}. P. Lofgren is with the Department of Computer Science, Stanford University, USA, Email: {\tt plofgren@cs.stanford.edu}.}}
+
+\maketitle
+
+\begin{abstract}
+    
+\end{abstract}
+
+\sbcomment{Use $\backslash$nscomment$\{\}$ to get a comment like this, and $\backslash$nsedit$\{\}$ to make changes to the text. We can turn off the colors later}
+
+\sbcomment{Enter your email in the author section}
+
+\sbcomment{Use $\ell$ instead of $l$ for the step-index everywhere. Do not use $i$ (reserve that for nodes).}
+
+\input{introduction.tex}
+
+\input{algorithm.tex}
+
+\input{proofs.tex}
+
+\bibliographystyle{ieeetr}
+\bibliography{FastLinsolve_Refs} 
+
+\end{document}
