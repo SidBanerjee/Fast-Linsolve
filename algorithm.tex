@@ -8,7 +8,7 @@ We present these along with statements of their correctness and running time -- 
 
 Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of \nsedit{$\left(Q^{\ell}e_t\right)[i]$ for all steps $\ell \in[\lm]$} and $i\in[n]$. 
+It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^{\ell}e_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
 We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
 
 
@@ -26,7 +26,7 @@ Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e.,
 \subsection{Computing Matrix Powers via Iterative Local-Update}
 \label{ssec:reverse}
 
-One approach towards estimating $\pzlt$ is via a standard power \nsedit{iteration for computing $Q^{\ell}e_t$}. 
+One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}e_t$. 
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
@@ -92,11 +92,7 @@ Hence we have shown that the invariant is preserved for any sequence of reverse 
 
 The above invariant gives a natural iterative algorithm for computing $\pzlt$, by performing repeated \texttt{REVERSE-PUSH} operations and controlling the residual vectors $\mathbf{r}_t^k$, and using $\pzltest = \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
-<<<<<<< HEAD
-In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle|\leq ||\mathbf{z}||_1\delta_r\cdot\left(\sum_{k=0}^{\ell}||Q||_{\infty}^k\right)$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
-=======
 In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
->>>>>>> origin/master
 
 \begin{algorithm}[ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
@@ -120,8 +116,8 @@ Recall we define $\beta = ||Q||_{\infty}$. Now we have the following:
 
 \begin{lemma}
 \label{lem:pushinvariant}
-For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$ is \nsedit{
-$$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta^{\lm}\right)$$ }
+For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$ is 
+$$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta^{\lm}\right)$$ 
 \end{lemma}
 
 In particular, note that if $||Q||_{\infty}\leq 1$ and $\lm=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
