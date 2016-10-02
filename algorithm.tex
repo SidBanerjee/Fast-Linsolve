@@ -8,7 +8,7 @@ We present these along with statements of their correctness and running time -- 
 
 Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^ke_t\right)[i]$ for all steps $k\in[\lm]$ and $i\in[n]$. 
+It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of \nsedit{$\left(Q^{\ell}e_t\right)[i]$ for all steps $\ell \in[\lm]$} and $i\in[n]$. 
 We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
 
 
@@ -23,7 +23,7 @@ Finally, we use $\beta = \max\{1, ||Q||_\infty\}$ to streamline our proofs, sinc
 \subsection{Solving Linear Systems via Local DP Iterations}
 \label{ssec:reverse}
 
-One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^ke_t$. 
+One approach towards estimating $\pzlt$ is via a standard power \nsedit{iteration for computing $Q^{\ell}e_t$}. 
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
