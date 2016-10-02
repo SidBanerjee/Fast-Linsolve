@@ -1,4 +1,61 @@
-%!TEX root = /Users/siddhartha/Repos/Fast-Linsolve/main.tex
+%!TEX root = main.tex
+
+\section{A Bidirectional Algorithm for Computing Matrix Powers}
+\label{ssec:bidiralgo}
+
+Finally, we can present our bidirectional estimator for $\pzlt = \langle\bz,Q^{\ell}\be_t\rangle$. 
+Our algorithm combines the \texttt{REVERSE-LOCAL-UPDATE} and \texttt{MCMC-SAMPLER} algorithms, following the technique established by Banerjee and Lofgren~\cite{banerjee2015fast}. 
+
+Intuitively, combining the two algorithms allows us to perform sampling more effectively by reducing the variance in the walk scores.
+To achieve this, given a desired error threshold $\delta$, we first run \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ for an appropriately chosen $\delta_r\gg\delta$ (\sbedit{cf. Theorem \ref{}}). 
+At this point, from Lemma \ref{lem:pushinvariant}, we know that we have
+$\pzlt = \left< \bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
+Now, instead of ignoring the residual terms (as we suggest in \ref{ssec:reverse}; this is the approach used in~\cite{andersen2007local,lee2014asynchronous}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
+Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\bz,\be_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
+\begin{algorithm}[ht]
+\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\lm)$}
+\label{alg:linearsysest}
+\begin{algorithmic}[1]
+%\REQUIRE Matrix $Q$, source vector $\bz$ defining the system $\mathbf{x} = G \mathbf{x} + \bz$, target $t$, number of random walks $n_f$, series truncation parameter $\lm$.
+\REQUIRE Matrix $Q$, vector $\bz$, target node-index $t$.
+\STATE{Compute estimate and residual vectors via $\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
+\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
+\FOR{ $i \in [n_f]$}
+\STATE{$k \sim Unif[0, \ell]$}
+\STATE{$S_{i,t}^\ell$ = \texttt{MCMC-SAMPLER} $(Q, k, \bz, \ell \cdot \res{\ell - k})$}
+\ENDFOR
+\STATE{$\pzlt = \ip{\bz}{\qest{\ell}} + \frac{1}{n_f} \sum_{i=0}^{n_f}S_{i,t}^\ell$}
+\ENDFOR
+\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
+\end{algorithmic}
+\end{algorithm} 
+
+\begin{lemma}
+\texttt{BIDIR-MATRIX-POWER} computes an unbiased estimator of $\pzlt$
+\begin{align*}
+\pzlt &=  \left<\bz, Q^l \mathbf{e}_t \right>= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz , Q^k\mathbf{r}_t^{\ell-k}\right>\\
+&= \mathbb{E}\left[\hat{\mathbf{p}}_\bz^{\ell}[t] \right]
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+By definition of the estimator $\pzltest$ and linearity of the expectation operator:
+\begin{align*}
+\mathbb{E}\left[\pzltest\right] &= \left<\bz, \mathbf{q}_t^{\ell} \right> + \frac{1}{n_f}\sum_{i=1}^{n_f} \mathbb{E}_{k \sim Unif[0, l]}\left[S_{t}^{k}\right] \\
+&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]}\left[S_{t}^{k}\right]
+\end{align*}
+
+From Lemma 2, we know $\mathbb{E}\left[S_{t}^{k}\right] = \ip{\mathbf{a}}{Q^k \mathbf{b}}$ when we call \texttt{MCMC-SAMPLER}$(Q, k, \mathbf{a}, \mathbf{b})$, so in the linear system estimator, we obtain: 
+\begin{align*}
+\mathbb{E}\left[\pzltest \right] &= \left<\bz, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]} \left[\ip{\bz}{Q^k ( \ell \cdot \mathbf{r}_t^{\ell-k})} \right] \\
+&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \frac{1}{\ell} \sum_{k = 0}^\ell\ip{\bz}{Q^k ( l \cdot \mathbf{r}_t^{\ell-k} )}\\
+&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k = 0}^l\ip{\bz}{Q^k\mathbf{r}_t^{\ell-k}}
+\end{align*}
+Recall from Lemma 1, that for any matrix $Q$ and after any sequence of reverse push operations, $\mathbf{p}_\bz^{\ell}[t] = \left<\bz, Q^{\ell} \mathbf{e}_t \right>$ obeys the invariant: 
+$$\pzlt = \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$$
+Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
+\end{proof}
+
 
 \begin{theorem}
 Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\ip{\mathbf{x}}{\mathbf{e}_t}$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 

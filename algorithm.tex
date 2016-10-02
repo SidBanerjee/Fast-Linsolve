@@ -1,19 +1,19 @@
 %!TEX root = /Users/siddhartha/Repos/Fast-Linsolve/main.tex
-\section{A Bidirectional Algorithm for Computing Matrix Powers}
+\section{Existing Algorithms for Estimating Matrix Powers}
 
-We now describe our algorithm for computing an estimate $\pzltest$ for $\pzlt =\ip{\mathbf{z}}{Q^{\ell}\mathbf{e}_t}$.
+We now describe our algorithm for computing an estimate $\pzltest$ for $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
 To do so, we first describe two existing algorithms -- a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a variational method based on a natural local dynamic-programming update, proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
 We present these along with statements of their correctness and running time -- some of these results follow directly from previous work (as we note in the appropriate sections), and their proofs are included here mainly for the sake of completeness.
 
 
 Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^{\ell}e_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
+It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
 We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
 
 
 We first introduce some notation which will help us better describe the algorithm.
-Drawing parallels to the case where $Q$ is a stochastic matrix and $\mathbf{z}$ an element in the $n$-dimensional simplex (as in~\cite{banerjee2015fast}), we define a (weighted) directed graph $\G_Q(\V,\E)$ with states $\V = [n]$, and edges $(i,j)\in \E$ if $Q_{ij}\neq 0$. 
+Drawing parallels to the case where $Q$ is a stochastic matrix and $\bz$ an element in the $n$-dimensional simplex (as in~\cite{banerjee2015fast}), we define a (weighted) directed graph $\G_Q(\V,\E)$ with states $\V = [n]$, and edges $(i,j)\in \E$ if $Q_{ij}\neq 0$. 
 Each edge $(i,j)\in\E$ has an associated weight $w_{ij}\in\setR$, which we describe later.
 We refer to the label for a node $v\in V$ (i.e., a dimension $v\in[n]$) as a \emph{dimension-index}, and the exponent of $Q$ as the \emph{step-index}.
 We also use $\mathbf{e}_v$ denote the indicator for index $v$ (i.e., $\mathbf{e}_v[i] = \mathds{1}_{i=v}$). 
@@ -26,7 +26,7 @@ Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e.,
 \subsection{Computing Matrix Powers via Iterative Local-Update}
 \label{ssec:reverse}
 
-One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}e_t$. 
+One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}\be_t$. 
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
@@ -57,9 +57,9 @@ Now, given any dimension-index $v\in[n]$ and step-index $\ell\in[\lm]$, the \tex
 The \texttt{REVERSE-PUSH} iteration results in the following critical invariant for the estimate and residual vectors:
 \begin{lemma}
 \label{lem:pushinvariant}
-Given the initialization described above, after any sequence of \texttt{REVERSE-PUSH} operations, and for any $\mathbf{z}\in\setR^n$ and $\ell\geq 0$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
+Given the initialization described above, after any sequence of \texttt{REVERSE-PUSH} operations, and for any $\bz\in\setR^n$ and $\ell\geq 0$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
 \begin{align*}
-\mathbf{p}_\mathbf{z}^{\ell}[t] &= \left< \mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k}\right> = \left< \mathbf{z}, \mathbf{q}_t^{\ell}  + \sum_{k=0}^{\ell} Q^k\mathbf{r}_t^{\ell-k}\right>
+\mathbf{p}_\bz^{\ell}[t] &= \left< \bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right> = \left< \bz, \mathbf{q}_t^{\ell}  + \sum_{k=0}^{\ell} Q^k\mathbf{r}_t^{\ell-k}\right>
 \end{align*}
 \end{lemma}
 
@@ -67,8 +67,8 @@ The above invariant was first stated in~\cite{andersen2007local} for the case of
 For the sake of completeness, we present a proof below for general matrices, adapted from~\cite{Lofgren2014}; an identical invariant is given in~\cite{lee2014asynchronous}.
 
 \begin{proof}
-For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\mathbf{z}^{\ell}[t] = \ip{\mathbf{z} }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
-Now, assuming the invariant holds at any stage with vectors $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$, and let $\{\qestnew{\ell}\}, \{\resnew{\ell}\}_{\ell\in[\lm]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\lm]$ and $\mathbf{z}\in\setR^n$. We define:
+For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\bz^{\ell}[t] = \ip{\bz }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
+Now, assuming the invariant holds at any stage with vectors $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$, and let $\{\qestnew{\ell}\}, \{\resnew{\ell}\}_{\ell\in[\lm]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\lm]$ and $\bz\in\setR^n$. We define:
 $$\Delta_v^{k} = \left( \mathbf{\tilde{q}}_t^{\ell} + \sum_{i=0}^{\ell}  (Q^i)\resnew{\ell-i} \right)- \left( \qest{\ell} + \sum_{i=0}^{\ell}  (Q^i) \mathbf{r}_t^{\ell-i}\right)$$
 Now to show that the invariant holds following \texttt{REVERSE-PUSH}$(t,v,k)$, it suffices to show that $\Delta_v^{k}$ is zero for any $v\in V$ and $k\in[\lm]$. 
 
@@ -90,9 +90,9 @@ $(iii)$ Finally, when $\ell > k$, we have:
 Hence we have shown that the invariant is preserved for any sequence of reverse push operations.
 \end{proof}
 
-The above invariant gives a natural iterative algorithm for computing $\pzlt$, by performing repeated \texttt{REVERSE-PUSH} operations and controlling the residual vectors $\mathbf{r}_t^k$, and using $\pzltest = \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
+The above invariant gives a natural iterative algorithm for computing $\pzlt$, by performing repeated \texttt{REVERSE-PUSH} operations and controlling the residual vectors $\mathbf{r}_t^k$, and using $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
-In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
+In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
 \begin{algorithm}[ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
@@ -148,9 +148,9 @@ Thus, the expected running time over a uniform random choice of $t\in[n]$ is giv
 
 
 In the previous section, we computer $\pzlt$ by working backwards from $t$. 
-Note that our final algorithm is independent of $\mathbf{z}$.
+Note that our final algorithm is independent of $\bz$.
 We now present an alternate technique which is based on a forward MCMC sampling technique called the von Neumann-Ulam scheme. 
-Note that in this case, the algorithm starts from $\mathbf{z}$, and computes $\pzlt$ for all $t\in[n]$.
+Note that in this case, the algorithm starts from $\bz$, and computes $\pzlt$ for all $t\in[n]$.
 
 More generally, given any vectors $\mathbf{a}$ and $\mathbf{b}$ and matrix $Q$, the von Neumann-Ulam scheme can be used for computing $\ip{\mathbf{a}}{Q^k\mathbf{b}}$.
 To understand the algorithm, note that we can expand $\ip{\mathbf{a}}{Q^k\mathbf{b}}$ as the sum $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \mathbf{a}[v_0] \mathbf{b}[v_k]$. 
@@ -162,9 +162,9 @@ Now we can interpret this sum as an expectation over a $k$-step random walk $W =
 \item The `score' for a walk $W$ is the product of weights of traversed edges, i.e.,
 $$S_t^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]$$
 \end{itemize}
-%We can then sample paths according to $P$ and weight each of these products by the normalization factors we used to construct $P$ and $\sigma$ from $Q$ and $\mathbf{z}$. There are two aspects to normalizing $Q$ and $\mathbf{z}$, the sign, and ensuring row sums are equal to $1$. By normalizing the substochastic matrix $Q$ to get the stochastic $P$, we are removing a dummy state $A$ that absorbed probability for $Q$. 
+%We can then sample paths according to $P$ and weight each of these products by the normalization factors we used to construct $P$ and $\sigma$ from $Q$ and $\bz$. There are two aspects to normalizing $Q$ and $\bz$, the sign, and ensuring row sums are equal to $1$. By normalizing the substochastic matrix $Q$ to get the stochastic $P$, we are removing a dummy state $A$ that absorbed probability for $Q$. 
 %We construct $\mathbf{p}_A$ to store this leftover probability mass. 
-%We sample from the distribution $\sigma (P)^k$ and then weight by the normalization factors to compute $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \mathbf{z}[v_0] \mathbf{r}_t^{\ell-k}[v_k]$ as an expectation. 
+%We sample from the distribution $\sigma (P)^k$ and then weight by the normalization factors to compute $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \bz[v_0] \mathbf{r}_t^{\ell-k}[v_k]$ as an expectation. 
 This procedure is summarized in Algorithm \ref{alg:fwalk}. 
 
 \begin{algorithm}[ht]
@@ -174,13 +174,13 @@ This procedure is summarized in Algorithm \ref{alg:fwalk}.
 \REQUIRE Matrix $Q$, exponent $k$, vectors $\mathbf{a}$ and $\mathbf{b}$
 \STATE{Construct transition matrix $P = \{|Q_{ij}|/||Q_i||_1\}$ and starting measure $\sigma_a = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in V}$}
 \STATE{Define node weights $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$ and edge weights $w_{V^iV^j} = sign(Q_{V^iV^j})||Q_i||_1$}
-\STATE{Construct source distribution $\sigma_{\mathbf{a}}$ with $\sigma_{\mathbf{a}}[i] = \frac{\mathbf{z}[i]}{||\mathbf{z}||_1}$}
+\STATE{Construct source distribution $\sigma_{\mathbf{a}}$ with $\sigma_{\mathbf{a}}[i] = \frac{\bz[i]}{||\bz||_1}$}
 \STATE{Sample $V^0 \sim \sigma_a$, and generate a random walk $W = 	\{V^0, V^1,\ldots, V^{k}\}$ of length $k$ on $\G$  using transition probability $P$.}
 \RETURN Walk-score $S_{t}^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]$
 \end{algorithmic}
 \end{algorithm} 
 
-%Once we have the sampled scores for $n_f$ walks each of length $l$, we can combine the estimate $\ip{\mathbf{z}}{\qest{\ell}}$ with an average over the scores $\{S_{t, i}^{\ell}\}$ from to compute the overall estimator $\pzltest$.
+%Once we have the sampled scores for $n_f$ walks each of length $l$, we can combine the estimate $\ip{\bz}{\qest{\ell}}$ with an average over the scores $\{S_{t, i}^{\ell}\}$ from to compute the overall estimator $\pzltest$.
 %Again, as noted in the section describing the forward walk estimation, provided that $Q$ is substochastic with spectral norm less than $1$, we can find an induced transition matrix that is fully stochastic as well as the described normalization terms $\pabsorb{\ell}$.
 
 Recall we define $\beta = \max\{1,||Q||_{\infty}\}$. 
@@ -218,57 +218,3 @@ Hence, since we are multiplying $k$ edge scores, we finally obtain
 $|S_{t}^k(W)| \leq ||Q||_{\infty}^k||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
 \end{proof}
 
-\subsection{A Bidirectional Algorithm for Computing Matrix Powers}
-
-Finally, we can present our bidirectional estimator for $\pzlt = \langle\mathbf{z},Q^{\ell}e_t\rangle$. 
-Our algorithm combines the \texttt{REVERSE-LOCAL-UPDATE} and \texttt{MCMC-SAMPLER} algorithms, following the technique established by Banerjee and Lofgren~\cite{banerjee2015fast}. 
-
-Intuitively, combining the two algorithms allows us to perform sampling more effectively by reducing the variance in the walk scores.
-To achieve this, given a desired error threshold $\delta$, we first run \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ for an appropriately chosen $\delta_r\gg\delta$ (\sbedit{cf. Theorem \ref{}}). 
-At this point, from Lemma \ref{lem:pushinvariant}, we know that we have
-$\pzlt = \left< \mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k}\right>$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
-Now, instead of ignoring the residual terms (as we suggest in \ref{ssec:reverse}; this is the approach used in~\cite{andersen2007local,lee2014asynchronous}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\mathbf{z},\mathbf{r}_t^k)$ to estimate the residual $\langle\mathbf{z},\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
-Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\mathbf{z},e_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
-\begin{algorithm}[ht]
-\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \mathbf{z}, t,\lm)$}
-\label{alg:linearsysest}
-\begin{algorithmic}[1]
-%\REQUIRE Matrix $Q$, source vector $\mathbf{z}$ defining the system $\mathbf{x} = G \mathbf{x} + \mathbf{z}$, target $t$, number of random walks $n_f$, series truncation parameter $\lm$.
-\REQUIRE Matrix $Q$, vector $\mathbf{z}$, target node-index $t$.
-\STATE{Compute estimate and residual vectors via $\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
-\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
-\FOR{ $i \in [n_f]$}
-\STATE{$k \sim Unif[0, \ell]$}
-\STATE{$S_{i,t}^\ell$ = \texttt{MCMC-SAMPLER} $(Q, k, \mathbf{z}, \ell \cdot \res{\ell - k})$}
-\ENDFOR
-\STATE{$\pzlt = \ip{\mathbf{z}}{\qest{\ell}} + \frac{1}{n_f} \sum_{i=0}^{n_f}S_{i,t}^\ell$}
-\ENDFOR
-\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
-\end{algorithmic}
-\end{algorithm} 
-
-\begin{lemma}
-\texttt{BIDIR-MATRIX-POWER} computes an unbiased estimator of $\pzlt$
-\begin{align*}
-\pzlt &=  \left<\mathbf{z}, Q^l \mathbf{e}_t \right>= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z} , Q^k\mathbf{r}_t^{\ell-k}\right>\\
-&= \mathbb{E}\left[\hat{\mathbf{p}}_\mathbf{z}^{\ell}[t] \right]
-\end{align*}
-\end{lemma}
-
-\begin{proof}
-By definition of the estimator $\pzltest$ and linearity of the expectation operator:
-\begin{align*}
-\mathbb{E}\left[\pzltest\right] &= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \frac{1}{n_f}\sum_{i=1}^{n_f} \mathbb{E}_{k \sim Unif[0, l]}\left[S_{t}^{k}\right] \\
-&= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]}\left[S_{t}^{k}\right]
-\end{align*}
-
-From Lemma 2, we know $\mathbb{E}\left[S_{t}^{k}\right] = \ip{\mathbf{a}}{Q^k \mathbf{b}}$ when we call \texttt{MCMC-SAMPLER}$(Q, k, \mathbf{a}, \mathbf{b})$, so in the linear system estimator, we obtain: 
-\begin{align*}
-\mathbb{E}\left[\pzltest \right] &= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]} \left[\ip{\mathbf{z}}{Q^k ( \ell \cdot \mathbf{r}_t^{\ell-k})} \right] \\
-&= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \frac{1}{\ell} \sum_{k = 0}^\ell\ip{\mathbf{z}}{Q^k ( l \cdot \mathbf{r}_t^{\ell-k} )}\\
-&= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k = 0}^l\ip{\mathbf{z}}{Q^k\mathbf{r}_t^{\ell-k}}
-\end{align*}
-Recall from Lemma 1, that for any matrix $Q$ and after any sequence of reverse push operations, $\mathbf{p}_\mathbf{z}^{\ell}[t] = \left<\mathbf{z}, Q^{\ell} \mathbf{e}_t \right>$ obeys the invariant: 
-$$\pzlt = \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z}, Q^k\mathbf{r}_t^{\ell-k}\right>$$
-Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
-\end{proof}
