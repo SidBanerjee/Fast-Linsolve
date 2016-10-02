@@ -24,3 +24,7 @@
 *.mtc1
 *.out
 *.synctex.gz
+
+*.fdb_latexmk
+
+main.fdb_latexmk
