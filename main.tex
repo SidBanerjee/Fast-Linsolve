@@ -7,7 +7,7 @@
 %\usepackage[small,compact]{titlesec}
 \usepackage{amsmath,amssymb,amssymb,amsfonts,mathtools,dsfont}
 
-\usepackage{verbatim,psfrag,bbm,comment,tabularx}
+\usepackage{verbatim,psfrag,bbm,comment,tabularx,comment}
 
 
 \usepackage[T1]{fontenc}
@@ -59,6 +59,9 @@
 \def\mut{\mathcal{I}} 
 \def\TT{{\mathcal T}}
 \def\calE{{\mathcal{E}}}
+\def\G{{\mathcal{G}}}
+\def\E{{\mathcal{E}}}
+\def\V{{\mathcal{V}}}
 
 \newcommand{\qest}[1]{\mathbf{q}^{#1}_t}
 \newcommand{\qestnew}[1]{\widetilde{\mathbf{q}}^{#1}_t}
@@ -102,19 +105,17 @@
 
 %%% BEGIN DOCUMENT
 
-\author{Nitin Shyamkumar, Siddhartha Banerjee, Peter Lofgren\thanks{N. Shyamkumar is with the Department of Computer Science, and S. Banerjee is with the School of Operations Research and Information Engineering, Cornell University, USA, Email: {\tt sbanerjee@cornell.edu, nhs56@cornell.edu}. P. Lofgren is with the Department of Computer Science, Stanford University, USA, Email: {\tt plofgren@cs.stanford.edu}.}}
+\author{Nitin Shyamkumar, Siddhartha Banerjee, Peter Lofgren\thanks{N. Shyamkumar is with the Department of Computer Science, and S. Banerjee is with the School of Operations Research and Information Engineering, Cornell University, USA, Email: {\tt nhs56@cornell.edu, sbanerjee@cornell.edu}. P. Lofgren is with the Department of Computer Science, Stanford University, USA, Email: {\tt plofgren@cs.stanford.edu}.}}
 
 \maketitle
 
 \begin{abstract}
-    
+We present a bidirectional algorithm for estimating a single element in the solution of a linear system $Ax=b$, with sublinear average-case running time guarantees for sparse systems.
+Our work combines the von Neumann-Ulam scheme for solving linear systems with recent developments in bidirectional
+algorithms for estimating random-walk metrics. 
+In particular, given a target additive-error threshold, we show how to combine a local dynamic-programming iteration with a forward MCMC technique such that the resulting algorithm is order-wise faster than each individual
+approach.      
 \end{abstract}
-
-\sbcomment{Use $\backslash$nscomment$\{\}$ to get a comment like this, and $\backslash$nsedit$\{\}$ to make changes to the text. We can turn off the colors later}
-
-\sbcomment{Enter your email in the author section}
-
-\sbcomment{Use $\ell$ instead of $l$ for the step-index everywhere. Do not use $i$ (reserve that for nodes).}
 
 \input{introduction.tex}
 

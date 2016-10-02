@@ -1,49 +1,82 @@
-
-\section{Algorithm Runtime and Accuracy Bounds}
+%!TEX root = /Users/siddhartha/Repos/Fast-Linsolve/main.tex
 
 \begin{theorem}
-Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\ip{\mathbf{x}_t}{\mathbf{e}_t}$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
-$$\mathcal{O}\left(\frac{l_{max}^2 |\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)\right)$$
+Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\ip{\mathbf{x}}{\mathbf{e}_t}$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
+$$ \mathcal{O}\left( \left(\frac{\lm^5 nnz(Q)\left(\ln \frac{\lm}{p_{fail}} \right)^2}{n} \right)^{1/3} \left( \frac{\beta^{\lm} |\mathbf{z}|_1}{\epsilon \delta}\right)^{4/3} \right) $$
+
 \end{theorem}
-
 \begin{proof}
-We will prove this statement by first considering the single estimator $\pzltest$ for some $l$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
+We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
 
-Consider the estimator $S_{t, i}^{\ell}$. We have already shown that $\EE\left[S_{t, i}^{\ell}\right] = \pzlt - \left< \sigma, \qest{l} \right>$. 
-Let $X_i = S_{t, i}^{\ell}$ and $X = \sum_{i=1}^n X_i$:
+\end{proof}
+We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
+
+Consider the estimator $S_{t}^{\ell}$. We have already shown that $\EE\left[S_{t, i}^{\ell}\right] = \pzlt - \left< \sigma, \qest{\ell} \right>$ and computed the work to achieve relative error $\epsilon$ for these estimators. Now observe:
 
 \begin{align*}
 &\mathbb{P}\left[ | \pzltest - \pzlt| \geq  \epsilon \pzlt \right] \\
-&\leq \mathbb{P}\left[ |X -\mathbb{E}[X]| \geq \epsilon \mathbb{E}[X]\right] 
+&\leq \mathbb{P}\left[ |X -\mathbb{E}[X]| \geq \epsilon \mathbb{E}[X]\right] \leq p_{fail}
 \end{align*}
+By Lemma 5, the work done by \texttt{MCMC-SAMPLER} to achieve relative accuracy $\epsilon$ with probability $1-p_{fail}$ is 
+$$ \mathcal{O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right) $$
 
-Thus, since $X_i \in [-l|\mathbf{z}|_1\delta_r, l|\mathbf{z}|_1\delta_r]$ by Lemma 3 and $E[X_i] \geq \delta$, we let $c = l|\mathbf{z}|_1\delta_r$, $a = \delta$ and by Lemma 6
- $n \geq \frac{4l_{max}^2|\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)$ random walks to ensure that $\mathbb{P}\left[ | \pzltest  -  \pzlt|  \geq  \epsilon  \pzlt \right] \leq p_{fail}$ holds for $l_{max}$ sets of $\pzltest$.
+By Lemma 6, we get that the forward and reverse work running times are equal asymptotically if we set 
+$$\delta_r = \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{n\lm |\mathbf{z}|_1^2\beta^{2\lm}\ln(\lm/p_{fail}) } }$$
+Substituting in this value for the forward walk work and we obtain:
+
+$$ \mathcal{O}\left( \left(\frac{\lm^5 nnz(Q)\left(\ln \frac{\lm}{p_{fail}} \right)^2}{n} \right)^{1/3} \left( \frac{\beta^{\lm} |\mathbf{z}|_1}{\epsilon \delta}\right)^{4/3} \right) $$
+which is in fact the total running time.
+\begin{lemma}
+The work done by \texttt{MCMC-SAMPLER} with averaged score variables $\frac{1}{n_f}\sum_{i=0}^{n_f} S_{i, t}$ returns an estimator $\widehat{\EE[S_{i, t}^l]}$ with relative accuracy $\epsilon$ with probability $1-p_{fail}$ in running time
+$$\mathcal{O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
+provided that $q$
+\end{lemma}
+
+\begin{proof}
+Let $X_i = S_{t, i}^{\ell}$ and $X = \sum_{i=1}^n X_i$. Then $X_i \in [-\lm|\mathbf{z}|_1\delta_r \beta^{\lm}, \lm|\mathbf{z}|_1\delta_r \beta^{\lm}]$ by Lemma 3. Since $\EE[X_i] \geq \delta$, we let $c = \lm |\mathbf{z}|_1\delta_r \beta^{\lm}$, $a = \delta$ and by Lemma 6
+$$n_f \geq \frac{2 \lm^2|\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)$$
+random walks to ensure that $\mathbb{P}\left[ | \widehat{\EE[S_{i, t}^l]}  -  \EE[S_{i, t}^l]|  \geq  \epsilon  \EE[S_{i, t}^l] \right] \leq p_{fail}$ holds for $\lm$ sets of $\pzltest$.
 Hence, the total work in the forward estimate to ensure 
-$\mathbb{P}\left[ | \pzltest  -  \pzlt]|  \geq  \epsilon  \pzlt \right] \leq p_{fail}$ for $l_{max}$ sets of estimators $\pzltest$ is
-$$\mathcal{O}\left(\frac{l_{max}^2 |\mathbf{z}|_1^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right)\right)$$
+$\mathbb{P}\left[ |X -  \EE[X]]|  \geq  \epsilon  \EE[X] \right] \leq p_{fail}$ for $\lm$ sets of estimators $X$ is
+$$\mathcal{O}\left(\frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
 \end{proof}
 
 \begin{lemma}
-$\delta_r =\sqrt[3]{\frac{\epsilon^2\delta^2}{l_{max}\ln(l_{max}/p_{fail}) } } $ to balance the reverse push and forward walk work
+Set 
+$$\delta_r = \sqrt[3]{\frac{nnz(Q)(\lm + 1) \epsilon^2\delta^2}{n\lm^2 |\mathbf{z}|_1^2\beta^{2\lm - 1}\ln(\lm/p_{fail}) } }$$
+to balance the reverse push and forward walk work.
 \end{lemma}
 \begin{proof}
-We know that the work from the reverse push operation is given by $O\left(\frac{l_{max}}{\delta_r}\right)$.
-Hence we solve the equation below for $\delta_r$.
-\[\frac{l_{max}}{\delta_r} = \frac{l_{max}^2 \delta_r^2}{\epsilon^2\delta^2}\ln \left(\frac{l_{max}}{p_{fail}}\right) \]
+From Lemma 2, the work from the reverse push operation is
+$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta\right)$.
+To get the optimal running time asymptotically, we set the forward work and reverse work equal to each other and solve for $\delta_r$:
+\[\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta = \frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right) \]
 Thus we obtain
 \begin{equation*}
-\delta_r = \sqrt[3]{\frac{\epsilon^2\delta^2}{l_{max}\ln(l_{max}/p_{fail}) } }    
+\delta_r = \sqrt[3]{\frac{nnz(Q)(\lm + 1) \epsilon^2\delta^2}{\lm^2 n|\mathbf{z}|_1^2\beta^{2\lm -1}\ln(\lm/p_{fail}) } }
 \end{equation*}
+For $\lm$ sufficiently large, we can replace $\lm + 1$ with just $\lm$ and $\beta^{2\lm -1}$ with $\beta^{2\lm}$.
 \end{proof}
 
 
 
-\
-\begin{lemma} 
-Let the random variable $X_i \in [-c, c]$ with $|\mathbb{E}[X_i]| \geq a$. Then $X = \sum_{i= 1}^n X_i$ satisfies
-$\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X_i] ] \leq p_{fail}$ provided that
-$n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$.
+\begin{lemma}
+Set $\lm = \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to satisfy additive error threshold of $\delta$.
+\end{lemma}
+\begin{proof}
+Note that $\lm$ controls error by truncating the power series $\sum_{l=0}^\infty \ip{\mathbf{z}}{Q^l\mathbf{e}_t}$.
+Suppose we have this error as $\Delta =\sum_{l=0}^\infty \ip{\mathbf{z}}{Q^l\mathbf{e}_t} - \sum_{l=0}^{\lm} \ip{\mathbf{z}}{Q^l\mathbf{e}_t} = \ip{\mathbf{z}}{Q^{\lm} \sum_{l=1}^\infty Q^{\ell} \mathbf{e}_t}$.
+Then $\Delta(\lm) \leq ||\mathbf{z}|| \frac{\rho(G)^{\lm}}{1 - \rho(G)}$.
+If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provided $\delta \leq ||\mathbf{z}||$, we have
+$\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\mathbf{z}||} \right)$.
+Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm$ increases as $\delta$ shrinks.
+\end{proof}
+
+\begin{lemma} [Hoeffding's Inequality]
+Let $\{X_i\}$ be independent random variable s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
+Then $X = \sum_{i= 1}^n X_i$ satisfies
+$\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ provided that
+$$n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
 \end{lemma}
 
 \begin{proof}
@@ -58,12 +91,13 @@ Applying Hoeffding's inequality to the rightmost term above, we obtain
   Hence substituting the values for $t$ and $b_i = c$, $a_i = -c$ gives us:
 \[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2\epsilon^2a^2}{n(4c^2)}\right) \]
 Now set this upperbound to $p_{fail}$ to obtain the relation:
-$$ \frac{n \epsilon^2 a^2}{4c^2} = \ln\left(\frac{2}{p_{fail}} \right) $$
-Thus, for $n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$, we are guaranteed that $\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq p_{fail}$.
+$$ \frac{n \epsilon^2 a^2}{2c^2} = \ln\left(\frac{2}{p_{fail}} \right) $$
+Thus, for $n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$, we are guaranteed that $\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq p_{fail}$.
 
-Note that if we require the failure conditions to hold for $l_{max}$ sets of $X's$, then we perform a simple union bound which adds a $l_{max}$ in the $\frac{2}{p_{fail}}$ term.
+Note that if we require the failure conditions to hold for $\lm$ sets of $X's$, then we perform a simple union bound which adds a $\lm$ in the $\frac{2}{p_{fail}}$ term.
 \end{proof} 
 
+\begin{comment}
 \subsection{Useful Tail Inequalities}
 Suppose $X_i$ are i.i.d with $\mathbb{E}[X_i]=\mu$, $Var(X_i)=\sigma^2$ and $X_i\in [a,b]$. Then:
 \begin{itemize}
@@ -78,3 +112,5 @@ Suppose $X_i$ are i.i.d with $\mathbb{E}[X_i]=\mu$, $Var(X_i)=\sigma^2$ and $X_i
 2\exp\left(\frac{-n\epsilon^2\mu^2}{2\sigma^2+\frac{2}{3}\epsilon|\mu|(b-a)}\right)
 \end{equation*}
 \end{itemize}
+
+\end{comment}
