@@ -7,8 +7,9 @@ Given any matrix $A\in\setR^{n\times n}$, vector $\bz$ and \emph{a target index 
 Computing $A^{\ell}\bz$ is a basic problem in matrix computations, and there is a large body of work on efficient ways of performing exact matrix-vector multiplications. 
 Our focus however is on large-scale settings (i.e., with very large values of $n$) where direct computation is infeasible; moreover, we are interested in developing techniques which can compute a single element of $A^{\ell}\bz$ in running time which is provably faster than computing the entire vector. 
 
-The problem of estimating $\pzlt$ has gained a lot of attention in recent times in the context of estimating random-walk transition probabilities, in particular, for estimating PageRank, Personalized PageRank, and other related network centrality metrics. 
-A recent line of work~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast}has shown how to develop fast bidirectional algorithms for this problem, and more generally, for settings where $A^T$ is a \emph{stochastic} matrix and $\bz$ is a probability distribution (i.e., an element of the $n$-dimensional simplex).
+The problem of estimating $\pzlt$ has gained attention recently in the context of estimating random-walk transition probabilities, in particular, for estimating PageRank and Personalized PageRank~\cite{Page1999}, and other related network centrality metrics. 
+%Though PageRank had fast estimation algorithms based on iterative~\cite{Andersen2007} and MCMC~\cite{Avrachenkov2007} techniques, these 
+A recent line of work~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast} has shown how to develop fast bidirectional algorithms for this problem, and more generally, for settings where $A^T$ is a \emph{stochastic} matrix and $\bz$ is a probability distribution (i.e., an element of the $n$-dimensional simplex).
 Our work generalizes these techniques to more general $A,\bz$; in particular, our main result can be paraphrased as follows:
 \begin{proposition}
 Given matrix $A$ (with $||A||_1\leq 1$), vector $z$ (with $||z||_1\leq 1$) and any index $t$ in $[n]$, Algorithm \texttt{BIDIR-MATRIX-POWER} (cf. Section \ref{ssec:bidiralgo}) returns estimate $\pzltest$ such that with high probability $|\pzlt-\pzltest|<\max\{\epsilon\pzlt,1/n\}$.
