@@ -8,7 +8,7 @@ We present these along with statements of their correctness and running time -- 
 
 Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^ke_t\right)[i]$ for all steps $k\in[\lm]$ and $i\in[n]$. 
+It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of \nsedit{$\left(Q^{\ell}e_t\right)[i]$ for all steps $\ell \in[\lm]$} and $i\in[n]$. 
 We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
 
 
@@ -26,7 +26,7 @@ Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e.,
 \subsection{Computing Matrix Powers via Iterative Local-Update}
 \label{ssec:reverse}
 
-One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^ke_t$. 
+One approach towards estimating $\pzlt$ is via a standard power \nsedit{iteration for computing $Q^{\ell}e_t$}. 
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
@@ -92,7 +92,11 @@ Hence we have shown that the invariant is preserved for any sequence of reverse 
 
 The above invariant gives a natural iterative algorithm for computing $\pzlt$, by performing repeated \texttt{REVERSE-PUSH} operations and controlling the residual vectors $\mathbf{r}_t^k$, and using $\pzltest = \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
+<<<<<<< HEAD
 In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle|\leq ||\mathbf{z}||_1\delta_r\cdot\left(\sum_{k=0}^{\ell}||Q||_{\infty}^k\right)$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
+=======
+In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\mathbf{z},\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
+>>>>>>> origin/master
 
 \begin{algorithm}[ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
@@ -116,8 +120,8 @@ Recall we define $\beta = ||Q||_{\infty}$. Now we have the following:
 
 \begin{lemma}
 \label{lem:pushinvariant}
-For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$ is 
-$$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta^{\lm}\right)$$ 
+For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$ is \nsedit{
+$$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta^{\lm}\right)$$ }
 \end{lemma}
 
 In particular, note that if $||Q||_{\infty}\leq 1$ and $\lm=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
@@ -126,19 +130,21 @@ In particular, note that if $||Q||_{\infty}\leq 1$ and $\lm=O(1)$, then the aver
 Let $T(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$.
 Recall we define $Q^+$ as the matrix with $Q^+_{ij} = |Q_{ij}|$; let $\hat{T}(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$. 
 Then we have that for every matrix $Q$ and every $t$, we have $\hat{T}(t)>T(t)$ -- this follows from the fact that any cancellation between positive and negative residuals in \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$ can only decrease the number of iterations. 
-Also, note that under $Q^+$, since all residuals are positive, we have that at any time and for any $v\in[n]$, $\mathbf{r}_t^{k}[v]\leq \left(e_v^TQ^k\right)[t]$.
+Also, note that under $Q^+$, since all residuals are positive, we have that at any time and for any \nsedit{$v\in[n]$, $\mathbf{r}_t^{\ell}[v]\leq \left(\mathbf{e}_v^TQ^\ell\right)[t]$.}
 
-Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{\ell}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$. 
+Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{\ell}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$. \nsedit{Recall we defined $\beta = \max\{1,||Q||_{\infty}\}$.}
 From Algorithm \ref{alg:rwork}, we have $\hat{T}(t) = \sum_{\ell=0}^{\lm}\sum_{v\in[n]}\mathds{1}_{\mathbf{r}_t^{\ell}[v]>\delta_r}$.
 Thus, the expected running time over a uniform random choice of $t\in[n]$ is given by
+\nsedit{ \emph{changed indexing from $k$ to $\ell$ for consistency}
 \begin{align*}
-\frac{1}{n}\sum_t\hat{T}(t) &= \frac{1}{n}\sum_{t\in[n]}\sum_{k=0}^{\lm}\sum_{v\in[n]}\mathds{1}_{\{\mathbf{r}_t^{k}>\delta_r\}}d_v\\
-&=\frac{1}{n}\sum_{k=0}^{\lm}\sum_{v\in[n]}\sum_{t\in[n]}\mathds{1}_{\{\mathbf{r}_t^{k}>\delta_r\}}d_v\\
-&\leq\frac{1}{n}\sum_{k=0}^{\lm}\sum_{v\in[n]} \mathds{1}_{\{\left(e_w^T(Q^+)^k\right)[t]>\delta_r\}}d_v\\
-&=\frac{1}{n}\sum_{k=0}^{\lm}\sum_{v\in[n]} \frac{||e_w^T(Q^+)^k||_1}{\delta_r}d_v\\
-&\leq\frac{1}{n}\sum_{k=0}^{\lm}\sum_{v\in[n]} \frac{||Q^+||_{\infty}^k}{\delta_r}d_v\\
+\frac{1}{n}\sum_t\hat{T}(t) &= \frac{1}{n}\sum_{t\in[n]}\sum_{\ell=0}^{\lm}\sum_{v\in[n]}\mathds{1}_{\{\mathbf{r}_t^{\ell}>\delta_r\}}d_v\\
+&=\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]}\sum_{t\in[n]}\mathds{1}_{\{\mathbf{r}_t^{\ell}>\delta_r\}}d_v\\
+&\leq\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \mathds{1}_{\{\left(\mathbf{e}_w^T(Q^+)^\ell\right)[t]>\delta_r\}}d_v\\
+&=\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \frac{||\mathbf{e}_w^T(Q^+)^\ell||_1}{\delta_r}d_v\\
+&\leq\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \frac{||Q^+||_{\infty}^\ell}{\delta_r}d_v\\
 &\leq\left(\lm+1\right)\beta^{\lm} \frac{nnz(Q)}{n\delta_r}
 \end{align*}
+}
 \end{proof}
 
 
@@ -210,6 +216,8 @@ Next, in order to bound the score $S_{t}^k(W)$, recall that
 \begin{align*}
 S_{t}^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]
 \end{align*}
+
+
 We defined $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
 Additionally, since $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $, and by definition $||Q_i||_1  \leq ||Q||_{\infty}$. Additionally, note from the definition $| \mathbf{b}[V^k] |\leq ||\mathbf{b}||_\infty$.
 Hence, since we are multiplying $k$ edge scores, we get that:
@@ -218,6 +226,12 @@ $$|S_{t}^k(W)| \leq \begin{cases}
 ||\mathbf{a}||_1||\mathbf{b}||_\infty &\mbox{when $||Q||_{\infty}\leq 1$}
 \end{cases}$$ 
 This proves the result.
+
+
+\nsedit{We defined $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
+Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^k] |\leq ||\mathbf{b}||_\infty$.
+Hence, since we are multiplying $k$ edge scores, we finally obtain
+$|S_{t}^k(W)| \leq ||Q||_{\infty}^k||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.}
 \end{proof}
 
 \subsection{A Bidirectional Algorithm for Computing Matrix Powers}
