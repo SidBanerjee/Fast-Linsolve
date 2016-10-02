@@ -209,7 +209,7 @@ Next, in order to bound the score $S_{t}^k(W)$, recall that
 S_{t}^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]
 \end{align*}
 \nsedit{We defined $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
-Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$. Also note $| \mathbf{b}[V^k] |\leq ||\mathbf{b}||_\infty$.
+Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^k] |\leq ||\mathbf{b}||_\infty$.
 Hence, since we are multiplying $k$ edge scores, we finally obtain
 $|S_{t}^k(W)| \leq ||Q||_{\infty}^k||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.}
 \end{proof}
