@@ -22,7 +22,7 @@ In particular, if $A$ is positive definite, \nsedit{we can find $\gamma$ such th
 
 Now let us examine this new system with $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
 We obtain $\mathbf{z} = (I - G)\mathbf{x}$ and $\mathbf{x} = G\mathbf{x} + \mathbf{z}$. 
-\nsedit{Since we ensure that $\rho(G)<1$, we can write $\mathbf{x}$ as a von Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$.}
+\nsedit{Since we ensure $\rho(G)<1$, we can write $\mathbf{x}$ as a von Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$.}
 Thus to find the $t$ component of the solution vector $\mathbf{x}$, or $\mathbf{x}[t]$, we perform the operation $\ip{\mathbf{x}}{\mathbf{e}_t} = \sum_{k=0}^\infty \ip{G^k \mathbf{z}}{\mathbf{e}_t}$. 
 Similar transformations have been used in \cite{dimov2015new, lee2014asynchronous, wu2016multi}.
 
@@ -56,4 +56,5 @@ Then we can set the upper bound for $\epsilon$ to $\Delta$ and solve for $\lm$:
 \end{align*}
 Thus, if we take $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right)$, we will have an error of at most $\Delta$ when approximating the series.
 \end{proof}
+Since we can a priori bound the error resulting from truncating the von Neumann series to $\lm$, we will focus on the problem of estimating $\pzlt$. It is then straightforward to develop overall error bounds by combining the results of the additive truncation error $\Delta$ and the relative error guarantees we prove for our bidirectional algorithm in Theorem 1. 
 }
