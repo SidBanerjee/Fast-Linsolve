@@ -220,7 +220,7 @@ $|S_{t}^k(W)| \leq ||Q||_{\infty}^k||\mathbf{a}||_1||\mathbf{b}||_\infty$ as sta
 
 \subsection{A Bidirectional Algorithm for Computing Matrix Powers}
 
-Finally, we can present our bidirectional estimator for $\pzlt$. 
+Finally, we can present our bidirectional estimator for $\pzlt = \langle\mathbf{z},Q^{\ell}e_t\rangle$. 
 Our algorithm combines the \texttt{REVERSE-LOCAL-UPDATE} and \texttt{MCMC-SAMPLER} algorithms, following the technique established by Banerjee and Lofgren~\cite{banerjee2015fast}. 
 
 Intuitively, combining the two algorithms allows us to perform sampling more effectively by reducing the variance in the walk scores.
@@ -230,12 +230,12 @@ $\pzlt = \left< \mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \lef
 Now, instead of ignoring the residual terms (as we suggest in \ref{ssec:reverse}; this is the approach used in~\cite{andersen2007local,lee2014asynchronous}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\mathbf{z},\mathbf{r}_t^k)$ to estimate the residual $\langle\mathbf{z},\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
 Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\mathbf{z},e_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
 \begin{algorithm}[ht]
-\caption{\texttt{BIDIRECTIONAL-MATPOWER}$(Q, \mathbf{z}, t,\ell)$}
+\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \mathbf{z}, t,\lm)$}
 \label{alg:linearsysest}
 \begin{algorithmic}[1]
 %\REQUIRE Matrix $Q$, source vector $\mathbf{z}$ defining the system $\mathbf{x} = G \mathbf{x} + \mathbf{z}$, target $t$, number of random walks $n_f$, series truncation parameter $\lm$.
 \REQUIRE Matrix $Q$, vector $\mathbf{z}$, target node-index $t$.
-\STATE{$\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
+\STATE{Compute estimate and residual vectors via $\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
 \FOR{ $l \in \{1, 2,\ldots, \lm \}$}
 \FOR{ $i \in [n_f]$}
 \STATE{$k \sim Unif[0, \ell]$}
@@ -248,7 +248,7 @@ Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(
 \end{algorithm} 
 
 \begin{lemma}
-LINEAR-SYSTEM-ESTIMATOR computes an unbiased estimator of $\pzlt$
+\texttt{BIDIR-MATRIX-POWER} computes an unbiased estimator of $\pzlt$
 \begin{align*}
 \pzlt &=  \left<\mathbf{z}, Q^l \mathbf{e}_t \right>= \left<\mathbf{z}, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\mathbf{z} , Q^k\mathbf{r}_t^{\ell-k}\right>\\
 &= \mathbb{E}\left[\hat{\mathbf{p}}_\mathbf{z}^{\ell}[t] \right]

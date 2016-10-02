@@ -3,6 +3,15 @@
 
 \subsection{Related Work}
 
+Our work is based on recently developments on bidirectional algorithms for estimating single-state transition probabilities in Markov chains.
+Such algorithms were first developed for \emph{reversible Markov chains} using random-walk collision statistics; in particular, Kale et al.~\cite{Kale2008} proposed such a technique for estimating length-$2\ell$ random walk transition probabilities in a \emph{regular undirected graph}.
+The main idea is that to test if a random walk goes from $s$ to $t$ in $2\ell$ steps with probability $\geq\delta$, we can generate two independent random walks of length $\ell$, starting from $s$ and $t$ respectively, and detect if they collide, i.e., terminate at the same intermediate node. 
+The critical observation is that using $\sqrt{n}$ walks from $s$ and $t$ gives $n$ potential collisions, which is sufficient to estimate probabilities on the order of $1/n$.
+This argument draws from older ideas on using the \emph{birthday-paradox} in estimation problems~\cite{Motwani2007}.
+A bidirectional algorithm for general graphs was first developed by Lofgren et al.~\cite{Lofgren2014} for PageRank estimation; the argument was subsequently simplified in \cite{lofgren2016personalized}, and extended to general Markov chains in \cite{banerjee2015fast}. 
+Our work here further generalizes this line of work to computing single elements of powers of arbitrary matrices, with a particular application to solving for single elements in sparse linear systems.
+
+
 
 \section{Solving Linear Equations via Series Approximation}
 
