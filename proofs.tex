@@ -75,7 +75,7 @@ From Lemma \ref{lem:mcmc}, we know \texttt{MCMC-SAMPLER} $(Q, k, \bz, \res{k})$ 
 However, Lemma \ref{lem:pushinvariant} states that after any sequence of reverse push operations, we have the invariant $\pzlt = \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$. Thus, $\mathbb{E}\left[\pzltest \right] = \pzlt$.
 \end{proof}
 
-To choose $n_f$ to get the desired accuracy, we need the following concentration bound, which is a restatement of Hoeffding's inequality (cf. \sbedit{Chapter ? in}~\cite{motwani2010randomized}).
+To choose $n_f$ to get the desired accuracy, we need the following concentration bound, which is a restatement of Hoeffding's inequality (cf. Chapter $1$ in~\cite{dubhashi2009concentration}).
 \begin{lemma}[Hoeffding's Inequality]
 Given $\{X_i\}$ independent random variables s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
 Then $X = \sum_{i= 1}^n X_i$ satisfies
@@ -83,6 +83,7 @@ $\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ pro
 $$n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 Let $X = \sum_{i=1}^n X_i$.  Since $E[X] = nE[X_i]$, $E[X] \geq n \epsilon a$. Let $t = \epsilon a$.
 \begin{align*}
@@ -100,6 +101,7 @@ Thus, for $n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)
 
 Note that if we require the failure conditions to hold for $\lm$ sets of $X's$, then we perform a simple union bound which adds a $\lm$ in the $\frac{2}{p_{fail}}$ term.
 \end{proof} 
+\end{comment}
 
 
 
