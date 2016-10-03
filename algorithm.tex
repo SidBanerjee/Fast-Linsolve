@@ -12,9 +12,8 @@ Each edge $(i,j)\in\E$ has an associated weight $w_{ij}\in\setR$, which we descr
 We refer to the label for a node $v\in V$ (i.e., a dimension $v\in[n]$) as a \emph{dimension-index}, and the exponent of $Q$ as the \emph{step-index}.
 We also use $\mathbf{e}_v$ denote the indicator for index $v$ (i.e., $\mathbf{e}_v[i] = \mathds{1}_{i=v}$). 
 Finally, we define $Q^+$ to denote the matrix with $Q^+_{ij} = |Q_{ij}|$. 
-Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e., the maximum (absolute) row-sum of $Q$; for ease of notation, we use the shorthand $\beta := ||Q||_{\infty}$. 
-
-%Finally, we we denote $\beta = ||Q||_\infty$ to streamline our proofs, since $\beta$ encodes whether a matrix is substochastic, or must be normalized to become stochastic.
+%Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e., the maximum (absolute) row-sum of $Q$
+%; for ease of notation, we use the shorthand $\beta := ||Q||_{\infty}$. 
 
 
 \subsection{Computing Matrix Powers via Iterative Local-Update}
@@ -86,7 +85,7 @@ Hence we have shown that the invariant is preserved for any sequence of reverse 
 
 The above invariant gives a natural iterative algorithm for computing $\pzlt$: perform repeated \texttt{REVERSE-PUSH} operations controlling the residual vectors $\mathbf{r}_t^k$, and use $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
-In particular, placing an upper bound on the infinity norm (i.e., the maximum absolute value of the residual vectors) of some chosen $\delta_r>0$ gives us the error bounds: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
+In particular, placing an upper bound on the infinity norm (i.e., the maximum absolute value of the residual vectors) of some chosen $\delta_r>0$ gives us the error bounds: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r||Q||_{\infty}^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
 \begin{algorithm}[ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \ell, \delta_r)$}
@@ -106,12 +105,12 @@ In particular, placing an upper bound on the infinity norm (i.e., the maximum ab
 Finally, we want to bound the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$. 
 It is easy to see that in the worst case, the running time can be as much as the $\ell$-hop in-neighborhood of $t$ in $Q$. 
 However, for a \emph{uniform random} choice of $t$, we can obtain a more informative bound. 
-Recall we define $\beta =  ||Q||_{\infty}$. Now we have the following:
+%Recall we define $\beta =  ||Q||_{\infty}$. Now we have the following:
 
 \begin{lemma}
 \label{lem:pushruntime}
 For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ is 
-$$O\left(\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell}\right)$$ 
+$$O\left(\frac{nnz(Q)}{n\delta_r}(\ell+1)||Q||_{\infty}^{\ell}\right)$$ 
 \end{lemma}
 
 In particular, note that if $||Q||_{\infty}\leq 1$ and $\ell=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
@@ -132,7 +131,7 @@ Thus, the expected running time over a uniform random choice of $t\in[n]$ is giv
 &\leq\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \mathds{1}_{\{\left(\mathbf{e}_w^T(Q^+)^k\right)[t]>\delta_r\}}d_v\\
 &=\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \frac{||\mathbf{e}_w^T(Q^+)^k||_1}{\delta_r}d_v\\
 &\leq\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \frac{||Q^+||_{\infty}^k}{\delta_r}d_v\\
-&\leq\left(\ell+1\right)\beta^{\ell} \frac{nnz(Q)}{n\delta_r}
+&\leq\left(\ell+1\right)||Q||_{\infty}^{\ell} \frac{nnz(Q)}{n\delta_r}
 \end{align*}
 \end{proof}
 
@@ -177,14 +176,14 @@ This procedure is summarized in Algorithm \ref{alg:fwalk}.
 %Once we have the sampled scores for $n_f$ walks each of length $l$, we can combine the estimate $\ip{\bz}{\qest{\ell}}$ with an average over the scores $\{S_{t, i}^{\ell}\}$ from to compute the overall estimator $\pzltest$.
 %Again, as noted in the section describing the forward walk estimation, provided that $Q$ is substochastic with spectral norm less than $1$, we can find an induced transition matrix that is fully stochastic as well as the described normalization terms $\pabsorb{\ell}$.
 
-Recall we define $\beta = ||Q||_{\infty}$. 
+%Recall we define $\beta = ||Q||_{\infty}$. 
 Now we have the following Lemma.
 \begin{lemma}
 \label{lem:mcmc}	
 \texttt{MCMC-SAMPLER}$(Q, {\ell},\mathbf{a},\mathbf{b})$ returns a walk-score $S_{t}^{\ell}(W)$ which satisfies:
 \begin{enumerate}
 \item $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] = \left<\mathbf{a}, Q^{\ell}\mathbf{b} \right>$
-\item $S_{t}^{\ell}(W) \in [\;-\beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} ,\; \beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} \;]$
+\item $S_{t}^{\ell}(W) \in [\;-||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} ,\; ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} \;]$
 \end{enumerate}
 \end{lemma}
 
@@ -210,6 +209,6 @@ S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{\ell-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]
 We defined $w_{V_0} = sgn(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
 Additionally, $w_{V_iV_{i+1}} = sgn(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^{\ell}] |\leq ||\mathbf{b}||_\infty$.
 Hence, since we are multiplying ${\ell}$ edge scores, we finally obtain
-$|S_{t}^{\ell}(W)| \leq \beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
+$|S_{t}^{\ell}(W)| \leq ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
 \end{proof}
 

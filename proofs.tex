@@ -114,8 +114,8 @@ Now we have our main theorem:
 \label{thm:main}
 Given matrix $Q$ and vector $\bz$, let $\pzltest$ be the estimate of $\pzlt$ returned by the \texttt{BIDIR-MATRIX-POWER} algorithm with 
 \begin{align*}
-\delta_r &= \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{\ell^2 n||\bz||_1^2\beta^{\ell}\ln(\ell/p_{fail}) } }\\
-n_f &= \frac{2 \lm^2|\bz|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
+\delta_r &= \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{\ell^2 n||\bz||_1^2||Q||_{\infty}^{\ell}\ln(\ell/p_{fail}) } }\\
+n_f &= \frac{2 \lm^2|\bz|_1^2 \delta_r^2 ||Q||_{\infty}^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
 \end{align*}
 Then we have the following
 \begin{itemize}
@@ -131,12 +131,12 @@ In particular, suppose we choose $\delta = 1/n$, and assuming $||\bz||_1\leq 1$ 
 \begin{proof}
 %We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
 Consider the random walk-score $\mathcal{S}_{t}^{\ell} = ((\ell+1)/n_f)\sum_{i=1}^{n_f}S_{i,t}^{\ell}$ as in Algorithm \ref{alg:linearsysest}. 
-From Lemma \ref{lem:unbiased} we have that $\EE\left[\mathcal{S}_{t}^{\ell}\right] = \pzlt - \ip{\sigma}{\qest{\ell}}$; moreover, from Lemma \ref{lem:mcmc}, we have that $|\mathcal{S}_{t}^{\ell}|\leq (\ell+1)||\bz||_1\delta_r\beta^{\ell}$.
+From Lemma \ref{lem:unbiased} we have that $\EE\left[\mathcal{S}_{t}^{\ell}\right] = \pzlt - \ip{\sigma}{\qest{\ell}}$; moreover, from Lemma \ref{lem:mcmc}, we have that $|\mathcal{S}_{t}^{\ell}|\leq (\ell+1)||\bz||_1\delta_r||Q||_{\infty}^{\ell}$.
 Thus, to achieve relative error $\epsilon$ with probability at least $1-p_{fail}$, we have from Lemma \ref{lem:hoeff} that we need
 \begin{align*}
-n_f\geq \frac{2 (\ell+1)^2|\bz|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
+n_f\geq \frac{2 (\ell+1)^2|\bz|_1^2 \delta_r^2 ||Q||_{\infty}^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
 \end{align*}
-Given this choice, we know that the running time for the forward MCMC sampling is $O(n_f\ell)$; moreover, from Lemma \ref{lem:pushruntime}, we get that the reverse work running time for a uniform random choice of $t\in[n]$ is $\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell}$. 
+Given this choice, we know that the running time for the forward MCMC sampling is $O(n_f\ell)$; moreover, from Lemma \ref{lem:pushruntime}, we get that the reverse work running time for a uniform random choice of $t\in[n]$ is $\frac{nnz(Q)}{n\delta_r}(\ell+1)||Q||_{\infty}^{\ell}$. 
 Now substituting the value of $\delta_r$ given in the statement (which is chosen to balance the two running times), we get the promised running time guarantee.
 %\[\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell} = \frac{(\ell+1)^2 \delta_r^2||\bz||_1^2 \beta^{2\ell}}{\epsilon^2\delta^2}\ln \left(\frac{\ell+1}{p_{fail}}\right) \]
 %Thus we obtain
