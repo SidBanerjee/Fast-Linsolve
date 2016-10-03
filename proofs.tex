@@ -36,7 +36,7 @@ Note however that the resulting error is better than ignoring the residual, and 
 \caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\ell)$}
 \label{alg:linearsysest}
 \begin{algorithmic}[1]
-\REQUIRE Matrix $Q$, exponent $\ell$, vector $\bz$, target node-index $t$.
+\REQUIRE Matrix $Q$, exponent $\ell$, vector $\bz$, target index $t$.
 \STATE{Compute estimate and residual vectors $\{\res{k}, \qest{k}\}_{\{k\leq\ell\}}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
 %\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
 \FOR{ $i \in [n_f]$}
@@ -107,7 +107,8 @@ Note that if we require the failure conditions to hold for $\lm$ sets of $X's$, 
 
 \begin{theorem}
 \label{thm:main}
-Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\mathbf{x}[t]$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
+The \texttt{BIDIR-MATRIX-POWER} algorithm returns an estimate $\pzltest$ satisfying $|\pzltest-\pzlt|\leq \max\{\delta,\epsilon\pzlt\}$ with probability at least $1-p_{fail}$ 
+in running time 
 $$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 
 \end{theorem}

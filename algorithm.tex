@@ -30,19 +30,19 @@ Essentially,\texttt{REVERSE-PUSH} is a local power-iteration for computing $Q^{\
 This operation was defined in the form given below in \cite{andersen2007local}, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
 
 
-For each step-index $\ell\in\{0,1,\ldots,\lm\}$, we store two vectors: the \emph{estimate vector} $\qest{\ell}$ and the \emph{residual vector} $\res{\ell}$.
-We initialize all $\res{\ell},\qest{\ell}, \ell\in[\lm]$ to $0$, except for $\res{0}$, which we set to $\mathbf{e}_t$.
-Now, given any dimension-index $v\in[n]$ and step-index $\ell\in[\lm]$, the \texttt{REVERSE-PUSH} operation iteratively updates these vectors as follows:
+For each step-index $k \in\{0,1,\ldots,\ell \}$, we store two vectors: the \emph{estimate vector} $\qest{k}$ and the \emph{residual vector} $\res{k}$.
+We initialize all $\res{k},\qest{k}, k\in[\ell]$ to $0$, except for $\res{0}$, which we set to $\mathbf{e}_t$.
+Now, given any dimension-index $v\in[n]$ and step-index $k \in[\ell]$, the \texttt{REVERSE-PUSH} operation iteratively updates these vectors as follows:
 \begin{algorithm}[!ht]
-\caption{\texttt{REVERSE-PUSH}$(t,v,\ell)$}
+\caption{\texttt{REVERSE-PUSH}$(t,v,k)$}
 \label{alg:push}
 \begin{algorithmic}[1]
-\REQUIRE Matrix $Q$, estimates $\qest{\ell}$, residuals $\res{\ell},\res{\ell+1}$
-\RETURN New estimates $\qestnew{\ell}$ and residuals $\resnew{\ell}$ computed as:
+\REQUIRE Matrix $Q$, estimates $\qest{k}$, residuals $\res{k},\res{k+1}$
+\RETURN New estimates $\qestnew{k}$ and residuals $\resnew{k}$ computed as:
 \begin{align*}
-	\qestnew{\ell} &\leftarrow \qest{\ell} + \ip{\res{\ell}}{\mathbf{e}_v}\mathbf{e}_v \\
-	\resnew{\ell} &\leftarrow \res{\ell} - \ip{\res{\ell}}{\mathbf{e}_v}\mathbf{e}_v \\
-	\resnew{\ell+1} &\leftarrow \res{\ell+1} + \ip{\res{\ell}}{\mathbf{e}_v}(Q\mathbf{e}_v)
+	\qestnew{k} &\leftarrow \qest{k} + \ip{\res{k}}{\mathbf{e}_v}\mathbf{e}_v \\
+	\resnew{k} &\leftarrow \res{k} - \ip{\res{k}}{\mathbf{e}_v}\mathbf{e}_v \\
+	\resnew{k+1} &\leftarrow \res{k+1} + \ip{\res{k}}{\mathbf{e}_v}(Q\mathbf{e}_v)
 \end{align*}	
 \end{algorithmic}
 \end{algorithm}    
@@ -61,9 +61,9 @@ For the sake of completeness, we present a proof below for general matrices, ada
 
 \begin{proof}
 For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\bz^{\ell}[t] = \ip{\bz }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
-Now, assuming the invariant holds at any stage with vectors $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$, and let $\{\qestnew{\ell}\}, \{\resnew{\ell}\}_{\ell\in[\lm]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\lm]$ and $\bz\in\setR^n$. We define:
+Now, assuming the invariant holds at any stage with vectors $\{\qest{k}\}, \{\res{k}\}_{k\in[\ell]}$, and let $\{\qestnew{k}\}, \{\resnew{k}\}_{k\in[\ell]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\ell]$ and $\bz\in\setR^n$. We define:
 $$\Delta_v^{k} = \left( \mathbf{\tilde{q}}_t^{\ell} + \sum_{i=0}^{\ell}  (Q^i)\resnew{\ell-i} \right)- \left( \qest{\ell} + \sum_{i=0}^{\ell}  (Q^i) \mathbf{r}_t^{\ell-i}\right)$$
-Now to show that the invariant holds following \texttt{REVERSE-PUSH}$(t,v,k)$, it suffices to show that $\Delta_v^{k}$ is zero for any $v\in V$ and $k\in[\lm]$. 
+Now to show that the invariant holds following \texttt{REVERSE-PUSH}$(t,v,k)$, it suffices to show that $\Delta_v^{k}$ is zero for any $v\in V$ and $k\in[\ell]$. 
 
 We now have three cases: $(i)$ if $\ell < k$, then the \texttt{REVERSE-PUSH}$(t,v,k)$ operation does not affect the residual or estimate vectors $\{\mathbf{q}_t^{i},\mathbf{r}_t^{i}\}_{i<k}$, and hence 
 $\Delta_v^k=0$;
@@ -88,50 +88,50 @@ Depending on the norm we choose to control, we can get a bound for the error via
 In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
 \begin{algorithm}[ht]
-\caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
+\caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \ell, \delta_r)$}
 \label{alg:rwork}
 \begin{algorithmic}[1]
-\REQUIRE Matrix $Q$, maximum step-index $\lm$, target residual threshold $\delta_r$
-\STATE{Initialize all residual $\res{\ell}$ and estimate vectors $\qest{\ell}, \ell\in[\lm]$ to $0$; set $\res{0} = \mathbf{e}_t$}
-\FOR{ $\ell \in \{0, 1, 2, ... \lm\}$ }
-\WHILE{$\exists v$ such that $\left|\res{\ell}[v]\right| > \delta_r $}
-\STATE{\texttt{REVERSE-PUSH}$(t,v,\ell)$}
+\REQUIRE Matrix $Q$, maximum step-index $\ell$, target residual threshold $\delta_r$
+\STATE{Initialize all residual $\res{k}$ and estimate vectors $\qest{k}, k \in[\ell]$ to $0$; set $\res{0} = \mathbf{e}_t$}
+\FOR{ $k \in \{0, 1, 2, ... \ell\}$ }
+\WHILE{$\exists v$ such that $\left|\res{k}[v]\right| > \delta_r $}
+\STATE{\texttt{REVERSE-PUSH}$(t,v,k)$}
 \ENDWHILE
 \ENDFOR
-\RETURN $\{\qest{\ell}\}, \{\res{\ell}\}_{\ell\in[\lm]}$
+\RETURN $\{\qest{k}\}, \{\res{k}\}_{k \in[\ell]}$
 \end{algorithmic}
 \end{algorithm}    
 
-Finally, we want to bound the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$. 
-It is easy to see that in the worst case, the running time can be as much as the $\lm$-hop in-neighborhood of $t$ in $Q$. 
+Finally, we want to bound the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$. 
+It is easy to see that in the worst case, the running time can be as much as the $\ell$-hop in-neighborhood of $t$ in $Q$. 
 However, for a \emph{uniform random} choice of $t$, we can obtain a more informative bound. 
-Recall we define $\beta = ||Q||_{\infty}$. Now we have the following:
+Recall we define $\beta =  ||Q||_{\infty}$. Now we have the following:
 
 \begin{lemma}
 \label{lem:pushinvariant}
-For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$ is 
-$$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta^{\lm}\right)$$ 
+For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ is 
+$$O\left(\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell}\right)$$ 
 \end{lemma}
 
-In particular, note that if $||Q||_{\infty}\leq 1$ and $\lm=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
+In particular, note that if $||Q||_{\infty}\leq 1$ and $\ell=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
 
 \begin{proof}
-Let $T(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\lm,\delta_r)$.
-Recall we define $Q^+$ as the matrix with $Q^+_{ij} = |Q_{ij}|$; let $\hat{T}(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$. 
-Then we have that for every matrix $Q$ and every $t$, we have $\hat{T}(t)>T(t)$ -- this follows from the fact that any cancellation between positive and negative residuals in \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$ can only decrease the number of iterations. 
-Also, note that under $Q^+$, since all residuals are positive, we have that for any $\ell\leq\lm,v\in[n]$, the residuals satisfy $\mathbf{r}_t^{\ell}[v]\leq \left(\mathbf{e}_v^TQ^\ell\right)[t]$.
+Let $T(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$.
+Recall we define $Q^+$ as the matrix with $Q^+_{ij} = |Q_{ij}|$; let $\hat{T}(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$. 
+Then we have that for every matrix $Q$ and every $t$, we have $\hat{T}(t)>T(t)$ -- this follows from the fact that any cancellation between positive and negative residuals in \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$ can only decrease the number of iterations. 
+Also, note that under $Q^+$, since all residuals are positive, we have that for any $k\leq\ell,v\in[n]$, the residuals satisfy $\mathbf{r}_t^{k}[v]\leq \left(\mathbf{e}_v^TQ^\ell\right)[t]$.
 
-Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{\ell}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\lm,\delta_r)$. 
+Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{k}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$. 
 %Recall we define $\beta = \max\{1,||Q||_{\infty}\}$.
-Recall we define $\beta = ||Q||_{\infty}$.From Algorithm \ref{alg:rwork}, we have $\hat{T}(t) = \sum_{\ell=0}^{\lm}\sum_{v\in[n]}\mathds{1}_{\mathbf{r}_t^{\ell}[v]>\delta_r}$.
+Recall we define $\beta = ||Q||_{\infty}$.From Algorithm \ref{alg:rwork}, we have $\hat{T}(t) = \sum_{k=0}^{\ell}\sum_{v\in[n]}\mathds{1}_{\mathbf{r}_t^{k}[v]>\delta_r}$.
 Thus, the expected running time over a uniform random choice of $t\in[n]$ is given by
 \begin{align*}
-\frac{1}{n}\sum_t\hat{T}(t) &= \frac{1}{n}\sum_{t\in[n]}\sum_{\ell=0}^{\lm}\sum_{v\in[n]}\mathds{1}_{\{\mathbf{r}_t^{\ell}>\delta_r\}}d_v\\
-&=\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]}\sum_{t\in[n]}\mathds{1}_{\{\mathbf{r}_t^{\ell}>\delta_r\}}d_v\\
-&\leq\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \mathds{1}_{\{\left(\mathbf{e}_w^T(Q^+)^\ell\right)[t]>\delta_r\}}d_v\\
-&=\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \frac{||\mathbf{e}_w^T(Q^+)^\ell||_1}{\delta_r}d_v\\
-&\leq\frac{1}{n}\sum_{\ell=0}^{\lm}\sum_{v\in[n]} \frac{||Q^+||_{\infty}^\ell}{\delta_r}d_v\\
-&\leq\left(\lm+1\right)\beta^{\lm} \frac{nnz(Q)}{n\delta_r}
+\frac{1}{n}\sum_t\hat{T}(t) &= \frac{1}{n}\sum_{t\in[n]}\sum_{k=0}^{\ell}\sum_{v\in[n]}\mathds{1}_{\{\mathbf{r}_t^{k}>\delta_r\}}d_v\\
+&=\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]}\sum_{t\in[n]}\mathds{1}_{\{\mathbf{r}_t^{k}>\delta_r\}}d_v\\
+&\leq\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \mathds{1}_{\{\left(\mathbf{e}_w^T(Q^+)^k\right)[t]>\delta_r\}}d_v\\
+&=\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \frac{||\mathbf{e}_w^T(Q^+)^k||_1}{\delta_r}d_v\\
+&\leq\frac{1}{n}\sum_{k=0}^{\ell}\sum_{v\in[n]} \frac{||Q^+||_{\infty}^k}{\delta_r}d_v\\
+&\leq\left(\ell+1\right)\beta^{\ell} \frac{nnz(Q)}{n\delta_r}
 \end{align*}
 \end{proof}
 
