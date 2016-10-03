@@ -146,16 +146,16 @@ Now substituting the value of $\delta_r$ given in the statement (which is chosen
 %$$\mathbb{E}[T(t)] = O\left( \left(\frac{\lm^2 |\bz|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 %which is in fact the total running time.
 \end{proof}
-
-
-\begin{lemma}
-Set $\lm = \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$  to satisfy additive error threshold of $\delta$.
-\end{lemma}
-\begin{proof}
-Note that $\lm$ controls error by truncating the power series $\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t}$.
-Suppose we have this error as $\Delta =\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t} - \sum_{l=0}^{\lm} \ip{\bz}{Q^l\mathbf{e}_t} = \ip{\bz}{Q^{\lm} \sum_{l=1}^\infty Q^{\ell} \mathbf{e}_t}$.
-Then $\Delta(\lm) \leq ||\bz|| \frac{\rho(G)^{\lm}}{1 - \rho(G)}$.
-If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provided $\delta \leq ||\bz||$, we have
-$\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$.
-Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm$ increases as $\delta$ shrinks.
-\end{proof}
+%
+%
+%\begin{lemma}
+%Set $\lm = \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$  to satisfy additive error threshold of $\delta$.
+%\end{lemma}
+%\begin{proof}
+%Note that $\lm$ controls error by truncating the power series $\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t}$.
+%Suppose we have this error as $\Delta =\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t} - \sum_{l=0}^{\lm} \ip{\bz}{Q^l\mathbf{e}_t} = \ip{\bz}{Q^{\lm} \sum_{l=1}^\infty Q^{\ell} \mathbf{e}_t}$.
+%Then $\Delta(\lm) \leq ||\bz|| \frac{\rho(G)^{\lm}}{1 - \rho(G)}$.
+%If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provided $\delta \leq ||\bz||$, we have
+%$\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$.
+%Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm$ increases as $\delta$ shrinks.
+%\end{proof}
