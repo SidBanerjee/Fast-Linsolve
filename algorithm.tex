@@ -1,16 +1,9 @@
-%!TEX root = /Users/siddhartha/Repos/Fast-Linsolve/main.tex
+%!TEX root = main.tex
 \section{Existing Algorithms for Estimating Matrix Powers}
 
-We now describe our algorithm for computing an estimate $\pzltest$ for $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
-To do so, we first describe two existing algorithms -- a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a variational method based on a natural local dynamic-programming update, proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
+As mentioned above, our main contribution in this work is to develop a bidirectional algorithm for estimating $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
+To do so, we first describe two existing algorithms, which we use as primitives for our procedure -- a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a local variational method proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
 We present these along with statements of their correctness and running time -- some of these results follow directly from previous work (as we note in the appropriate sections), and their proofs are included here mainly for the sake of completeness.
-
-
-Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
-Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
-We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
-
 
 We first introduce some notation which will help us better describe the algorithm.
 Drawing parallels to the case where $Q$ is a stochastic matrix and $\bz$ an element in the $n$-dimensional simplex (as in~\cite{banerjee2015fast}), we define a (weighted) directed graph $\G_Q(\V,\E)$ with states $\V = [n]$, and edges $(i,j)\in \E$ if $Q_{ij}\neq 0$. 

@@ -85,9 +85,12 @@
 \newcommand{\todo}{\color{red}}
 \usepackage{color-edits}
 %\usepackage[suppress]{color-edits}
-\addauthor{ns}{blue}
+\addauthor{ns}{cyan}
 \addauthor{sb}{magenta}
 
+\makeatletter
+\let\NAT@parse\undefined
+\makeatother
 \usepackage[colorlinks,
 			linkcolor=blue, 			
 			citecolor=blue,
