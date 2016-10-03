@@ -36,22 +36,14 @@ Our work here further generalizes this line of work to computing single elements
 
 \section{Solving Linear Equations via Series Approximation}
 
-\subsection{Basic Problem and Notation}
-
 Unless specified otherwise, we use boldface letters (e.g. $\mathbf{x},\mathbf{y}$) to denote vectors in $\setR^{n\times 1}$, and capital letters (e.g. $A,Q$) to denote matrices in $\setR^{n\times n}$.
 
 
-Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $x[t]$ for some given index $t\in[n]$. 
+Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $\mathbf{x}[t]$ for some given index $t\in[n]$. 
 This can be done by directly solving for $\mathbf{x}$; however, we are interested in settings where $n$ is very large, and hence direct solution techniques may be impractical. 
 
-
-\subsection{Approximation via the Truncated Neumann Series}
-
 One approach for approximating the solution to $\mathbf{y} = A\mathbf{x}$ is to expand it via the Neumann series and then compute the leading terms of the summation.
-In particular, if $A$ is positive definite, \nsedit{we can find $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$. Then $\gamma\mathbf{y} = (I - (I - \gamma A)\mathbf{x}$. }
-
-Now let us examine this new system with $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
-We obtain $\mathbf{z} = (I - G)\mathbf{x}$ and $\mathbf{x} = G\mathbf{x} + \mathbf{z}$. 
+In particular, if $A$ is positive definite, \nsedit{we can find $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$. Then $\gamma\mathbf{y} = (I - (I - \gamma A)\mathbf{x}$  and we have a new system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$ where $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. }
 \nsedit{Since we ensure $\rho(G)<1$, we can write $\mathbf{x}$ as a von Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$.}
 Thus to find the $t$ component of the solution vector $\mathbf{x}$, or $\mathbf{x}[t]$, we perform the operation $\ip{\mathbf{x}}{\mathbf{e}_t} = \sum_{k=0}^\infty \ip{G^k \mathbf{z}}{\mathbf{e}_t}$. 
 Similar transformations have been used in \cite{dimov2015new, lee2014asynchronous, wu2016multi}.
@@ -61,29 +53,23 @@ Let $Q:=G^T$; prior work by Banerjee and Lofgren \cite{banerjee2015fast} shows h
 We now extend this result for any $\mathbf{z}$ and a special class of matrices $Q$.
 
 \nsedit{
-Note that the error from truncating the series to $\lm$ can be determined a priori; using bounds for $\mathbf{z}$ and the condition that $G$ has spectral norm less than $1$, we have the following Lemma.
-\begin{lemma}
-Set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$.
-\end{lemma}
+Note that the error from truncating the series to $\lm$ can be determined a priori; using bounds for $\mathbf{z}$ and the condition that $G$ has spectral norm less than $1$, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$.
 \begin{proof}
 Let $\varepsilon$ be the error from truncating the power series to $\lm$. Then by definition:
 \begin{align*}
 \varepsilon &= \left|\sum_{\ell=0}^\infty \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} - \sum_{\ell=0}^{\lm} \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} \right| \\
-&=\left| \sum_{\ell= \lm+1}^\infty \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} \right|\\
+%&=\left| \sum_{\ell= \lm+1}^\infty \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} \right|\\
 &= \left| \ip{\mathbf{z}}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\mathbf{e}_t} \right|\\
-\end{align*} For any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by Cauchy - Schwarz we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
-Hence we have:
-\begin{align*}
-\varepsilon &\leq ||\mathbf{z}|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
-&= ||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)
-\end{align*}
-Now suppose we want our error less than $\Delta$, that is $\varepsilon \leq \Delta$. 
-Then we can set the upper bound for $\epsilon$ to $\Delta$ and solve for $\lm$:
-\begin{align*}
-||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right) =  \Delta \\
-(\lm + 1)\ln \rho(Q) = \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) \\
-\lm = \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) - 1
-\end{align*}
+\end{align*} 
+For any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by Cauchy - Schwarz we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
+Hence we have
+$\varepsilon \leq %||\mathbf{z}|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
+ ||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)$
+Now suppose we want our error $\epsilon \leq \Delta$. Then we can set the upper bound for $\epsilon$ to $\Delta$ and solve for $\lm$.
+%\begin{align*}
+%||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right) =  \Delta \\
+%(\lm + 1)\ln \rho(Q) = \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) \\
+%$\lm = \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) - 1$
 Thus, if we take $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right)$, we will have an error of at most $\Delta$ when approximating the series.
 \end{proof}
 Since we can a priori bound the error resulting from truncating the von Neumann series to $\lm$, we will focus on the problem of estimating $\pzlt$. It is then straightforward to develop overall error bounds by combining the results of the additive truncation error $\Delta$ and the relative error guarantees we prove for our bidirectional algorithm in Theorem 1. 
