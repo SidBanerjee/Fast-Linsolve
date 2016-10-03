@@ -50,10 +50,11 @@ Now, given any dimension-index $v\in[n]$ and step-index $k \in[\ell]$, the \text
 The \texttt{REVERSE-PUSH} iteration results in the following critical invariant for the estimate and residual vectors:
 \begin{lemma}
 \label{lem:pushinvariant}
-Given the initialization described above, after any sequence of \texttt{REVERSE-PUSH} operations, and for any $\bz\in\setR^n$ and $\ell\geq 0$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
+\emph{Given the initialization described above, after any sequence of \texttt{REVERSE-PUSH} operations, and for any $\bz\in\setR^n$ and $\ell\geq 0$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
 \begin{align*}
 \mathbf{p}_\bz^{\ell}[t] &= \left< \bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right> = \left< \bz, \mathbf{q}_t^{\ell}  + \sum_{k=0}^{\ell} Q^k\mathbf{r}_t^{\ell-k}\right>
 \end{align*}
+}
 \end{lemma}
 
 The above invariant was first stated in~\cite{andersen2007local} for the case of PageRank vectors. 
@@ -109,8 +110,9 @@ However, for a \emph{uniform random} choice of $t$, we can obtain a more informa
 
 \begin{lemma}
 \label{lem:pushruntime}
-For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ is 
+\emph{For any $Q\in\setR^{n\times n}$ and uniform random dimension-index $t\in[n]$, the expected running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ is 
 $$O\left(\frac{nnz(Q)}{n\delta_r}(\ell+1)||Q||_{\infty}^{\ell}\right)$$ 
+}
 \end{lemma}
 
 In particular, note that if $||Q||_{\infty}\leq 1$ and $\ell=O(1)$, then the average running time is $O\left(\frac{nnz(Q)}{n\delta_r}\right)$.
@@ -180,11 +182,13 @@ This procedure is summarized in Algorithm \ref{alg:fwalk}.
 Now we have the following Lemma.
 \begin{lemma}
 \label{lem:mcmc}	
+\emph{
 \texttt{MCMC-SAMPLER}$(Q, {\ell},\mathbf{a},\mathbf{b})$ returns a walk-score $S_{t}^{\ell}(W)$ which satisfies:
 \begin{enumerate}
 \item $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] = \left<\mathbf{a}, Q^{\ell}\mathbf{b} \right>$
 \item $S_{t}^{\ell}(W) \in [\;-||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} ,\; ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} \;]$
 \end{enumerate}
+}
 \end{lemma}
 
 
