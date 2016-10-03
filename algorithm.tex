@@ -1,16 +1,9 @@
-%!TEX root = /Users/siddhartha/Repos/Fast-Linsolve/main.tex
+%!TEX root = main.tex
 \section{Existing Algorithms for Estimating Matrix Powers}
 
-We now describe our algorithm for computing an estimate $\pzltest$ for $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
-To do so, we first describe two existing algorithms -- a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a variational method based on a natural local dynamic-programming update, proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
+As mentioned above, our main contribution in this work is to develop a bidirectional algorithm for estimating $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
+To do so, we first describe two existing algorithms, which we use as primitives for our procedure -- a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a local variational method proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
 We present these along with statements of their correctness and running time -- some of these results follow directly from previous work (as we note in the appropriate sections), and their proofs are included here mainly for the sake of completeness.
-
-
-Our main contribution in this work is to show how the above two primitives can be combined into a bidirectional algorithm for estimating $\pzltest$ for any given matrix $Q$. 
-Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use the reverse local-DP primitive to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
-We then use MCMC samples to reduce the error in these estimates to get our desired accuracy.
-
 
 We first introduce some notation which will help us better describe the algorithm.
 Drawing parallels to the case where $Q$ is a stochastic matrix and $\bz$ an element in the $n$-dimensional simplex (as in~\cite{banerjee2015fast}), we define a (weighted) directed graph $\G_Q(\V,\E)$ with states $\V = [n]$, and edges $(i,j)\in \E$ if $Q_{ij}\neq 0$. 
@@ -152,15 +145,15 @@ Note that our final algorithm is independent of $\bz$.
 We now present an alternate technique which is based on a forward MCMC sampling technique called the von Neumann-Ulam scheme. 
 Note that in this case, the algorithm starts from $\bz$, and computes $\pzlt$ for all $t\in[n]$.
 
-More generally, given any vectors $\mathbf{a}$ and $\mathbf{b}$ and matrix $Q$, the von Neumann-Ulam scheme can be used for computing $\ip{\mathbf{a}}{Q^k\mathbf{b}}$.
-To understand the algorithm, note that we can expand $\ip{\mathbf{a}}{Q^k\mathbf{b}}$ as the sum $\sum_{(v_0,\ldots, v_k) \in V^k}\left(\prod_{j \in [k]} Q_{v_{j-1}v_{j}} \right) \mathbf{a}[v_0] \mathbf{b}[v_k]$. 
-Now we can interpret this sum as an expectation over a $k$-step random walk $W = (V_0,V_1,\ldots,V_k)$ on $\G$, specified as follows:
+More generally, given any vectors $\mathbf{a}$ and $\mathbf{b}$ and matrix $Q$, the von Neumann-Ulam scheme can be used for computing $\ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$.
+To understand the algorithm, note that we can expand $\ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$ as the sum $\sum_{(v_0,\ldots, v_{\ell}) \in V^{\ell}}\left(\prod_{j \in [{\ell}]} Q_{v_{j-1}v_{j}} \right) \mathbf{a}[v_0] \mathbf{b}[v_{\ell}]$. 
+Now we can interpret this sum as an expectation over a ${\ell}$-step random walk $W = (V_0,V_1,\ldots,V_{\ell})$ on $\G$, specified as follows:
 \begin{itemize}
 \item $V_0$, the starting node for the random walk, is sampled from $\sigma_{\mathbf{a}} = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in [n]}$, and has an associated weight $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$.
 \item The transition probability matrix for the walk is given by $P = \{|Q_{ij}|/||Q_i||_1\}$ (where $||Q_i||_1$ is the $1$-norm of the $i^{th}$ row of $Q$).
 \item Each edge $(i,j)\in E$ has associated weight $w_{ij} = sgn(Q_{ij})||Q_i||_1$. 
 \item The `score' for a walk $W$ is the product of weights of traversed edges, i.e.,
-$$S_t^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]$$
+$$S_t^{\ell}(W) = w_{V_0}\prod_{i=0}^{{\ell}-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]$$
 \end{itemize}
 %We can then sample paths according to $P$ and weight each of these products by the normalization factors we used to construct $P$ and $\sigma$ from $Q$ and $\bz$. There are two aspects to normalizing $Q$ and $\bz$, the sign, and ensuring row sums are equal to $1$. By normalizing the substochastic matrix $Q$ to get the stochastic $P$, we are removing a dummy state $A$ that absorbed probability for $Q$. 
 %We construct $\mathbf{p}_A$ to store this leftover probability mass. 
@@ -168,53 +161,53 @@ $$S_t^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]$$
 This procedure is summarized in Algorithm \ref{alg:fwalk}. 
 
 \begin{algorithm}[ht]
-\caption{\texttt{MCMC-SAMPLER}$(Q, k, \mathbf{a}, \mathbf{b})$}
+\caption{\texttt{MCMC-SAMPLER}$(Q, {\ell}, \mathbf{a}, \mathbf{b})$}
 \label{alg:fwalk}
 \begin{algorithmic}[1]
-\REQUIRE Matrix $Q$, exponent $k$, vectors $\mathbf{a}$ and $\mathbf{b}$
+\REQUIRE Matrix $Q$, exponent ${\ell}$, vectors $\mathbf{a}$ and $\mathbf{b}$
 \STATE{Construct transition matrix $P = \{|Q_{ij}|/||Q_i||_1\}$ and starting measure $\sigma_a = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in V}$}
 \STATE{Define node weights $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$ and edge weights $w_{V^iV^j} = sign(Q_{V^iV^j})||Q_i||_1$}
 \STATE{Construct source distribution $\sigma_{\mathbf{a}}$ with $\sigma_{\mathbf{a}}[i] = \frac{\bz[i]}{||\bz||_1}$}
-\STATE{Sample $V^0 \sim \sigma_a$, and generate a random walk $W = 	\{V^0, V^1,\ldots, V^{k}\}$ of length $k$ on $\G$  using transition probability $P$.}
-\RETURN Walk-score $S_{t}^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]$
+\STATE{Sample $V^0 \sim \sigma_a$, and generate a random walk $W = \{V^0, V^1,\ldots, V^{\ell}\}$ of length ${\ell}$ on $\G$  using transition probability $P$.}
+\RETURN Walk-score $S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{{\ell}-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]$
 \end{algorithmic}
 \end{algorithm} 
 
 %Once we have the sampled scores for $n_f$ walks each of length $l$, we can combine the estimate $\ip{\bz}{\qest{\ell}}$ with an average over the scores $\{S_{t, i}^{\ell}\}$ from to compute the overall estimator $\pzltest$.
 %Again, as noted in the section describing the forward walk estimation, provided that $Q$ is substochastic with spectral norm less than $1$, we can find an induced transition matrix that is fully stochastic as well as the described normalization terms $\pabsorb{\ell}$.
 
-Recall we define $\beta = \max\{1,||Q||_{\infty}\}$. 
+Recall we define $\beta = ||Q||_{\infty}$. 
 Now we have the following Lemma.
 \begin{lemma}
-\texttt{MCMC-SAMPLER}$(Q, k,\mathbf{a},\mathbf{b})$ returns a walk-score $S_{t}^k(W)$ which satisfies:
+\texttt{MCMC-SAMPLER}$(Q, {\ell},\mathbf{a},\mathbf{b})$ returns a walk-score $S_{t}^{\ell}(W)$ which satisfies:
 \begin{enumerate}
-\item $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^k} \left[S_{t}^k(W)\right] = \left<\mathbf{a}, Q^k\mathbf{b} \right>$
-\item $S_{t}^{k}(W) \in [\;-\beta^k||\mathbf{a}||_1||\mathbf{b}||_{\infty} ,\; \beta^k||\mathbf{a}||_1||\mathbf{b}||_{\infty} \;]$
+\item $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] = \left<\mathbf{a}, Q^{\ell}\mathbf{b} \right>$
+\item $S_{t}^{\ell}(W) \in [\;-\beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} ,\; \beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_{\infty} \;]$
 \end{enumerate}
 \end{lemma}
 
 
 \begin{proof}
-We can expand $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^k} \left[S_{t}^k(W)\right]$ to obtain:
+We can expand $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right]$ to obtain:
 \small
 \begin{align*}
-&\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^k} \left[S_{t}^k(W)\right] \\ 
-&= \sum_{(V^0, ... V^{k}) \in [n]^{k+1}} \left(\frac{sign(\mathbf{a}[V_0])||\mathbf{a}||_1|\mathbf{a}[V^0]|}{||\mathbf{a}||_1} \right. \\
-&\left. \times \left( \prod_{j \in [0, k-1]} \frac{sign(Q_{V^jV^{j+1}}||Q_{V^j}||_1)|Q_{V^jV^{j+1}}|}{||Q_{V^j}||_1} \right) \mathbf{b}[V^k] \right) \\
-& = \sum_{(V^0, ... V^{k}) \in [n]^{k+1}} \left(\mathbf{a}[V_0] \left( \prod_{j \in [0, k-1]} Q_{V^jV^{j+1}}\right) \mathbf{b}[V^k] \right)
+&\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] \\ 
+&= \sum_{(V^0, ... V^{\ell}) \in [n]^{\ell+1}} \left(\frac{sign(\mathbf{a}[V_0])||\mathbf{a}||_1|\mathbf{a}[V^0]|}{||\mathbf{a}||_1} \right. \\
+&\left. \times \left( \prod_{j \in [0, \ell-1]} \frac{sign(Q_{V^jV^{j+1}}||Q_{V^j}||_1)|Q_{V^jV^{j+1}}|}{||Q_{V^j}||_1} \right) \mathbf{b}[V^{\ell}] \right) \\
+& = \sum_{(V^0, ... V^{k}) \in [n]^{\ell+1}} \left(\mathbf{a}[V_0] \left( \prod_{j \in [0,\ell-1]} Q_{V^jV^{j+1}}\right) \mathbf{b}[V^{\ell}] \right)
 \end{align*}
 \normalsize
-The final expression is exactly the definition of $\ip{\mathbf{a}}{Q^k\mathbf{b}}$; hence $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^k} \left[S_{t}^k(W)\right] = \ip{\mathbf{a}}{Q^k\mathbf{b}}$.
+The final expression is exactly the definition of $\ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$; hence $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] = \ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$.
 
 
-Next, in order to bound the score $S_{t}^k(W)$, recall that
+Next, in order to bound the score $S_{t}^{\ell}(W)$, recall that
 \begin{align*}
-S_{t}^k(W) = w_{V_0}\prod_{i=0}^{k-1}w_{V_iV_{i+1}}\mathbf{b}[V_{k}]
+S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{\ell-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]
 \end{align*}
 
 We defined $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
-Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^k] |\leq ||\mathbf{b}||_\infty$.
-Hence, since we are multiplying $k$ edge scores, we finally obtain
-$|S_{t}^k(W)| \leq ||Q||_{\infty}^k||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
+Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^{\ell}] |\leq ||\mathbf{b}||_\infty$.
+Hence, since we are multiplying ${\ell}$ edge scores, we finally obtain
+$|S_{t}^{\ell}(W)| \leq ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
 \end{proof}
 
