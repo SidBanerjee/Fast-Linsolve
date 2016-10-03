@@ -5,7 +5,7 @@
 
 Finally, we present our main contribution: a bidirectional estimator for $\pzlt = \langle\bz,Q^{\ell}\be_t\rangle$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
-It comprises of two distinct components: first we use \texttt{REVERSE-LOCAL-UPDATE} to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
+It comprises of two distinct components: first we use  \texttt{REVERSE-LOCAL-UPDATE} to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
 We then use\texttt{MCMC-SAMPLER} to reduce the error in these estimates to get our desired accuracy.
 
 
