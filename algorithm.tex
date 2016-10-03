@@ -179,6 +179,7 @@ This procedure is summarized in Algorithm \ref{alg:fwalk}.
 Recall we define $\beta = ||Q||_{\infty}$. 
 Now we have the following Lemma.
 \begin{lemma}
+\label{lem:mcmc}	
 \texttt{MCMC-SAMPLER}$(Q, {\ell},\mathbf{a},\mathbf{b})$ returns a walk-score $S_{t}^{\ell}(W)$ which satisfies:
 \begin{enumerate}
 \item $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] = \left<\mathbf{a}, Q^{\ell}\mathbf{b} \right>$

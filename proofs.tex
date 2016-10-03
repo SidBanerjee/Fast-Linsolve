@@ -15,49 +15,92 @@ At this point, from Lemma \ref{lem:pushinvariant}, we know that we have
 $\pzlt = \ip{\bz}{\mathbf{q}_t^{\ell}} + \sum_{k=0}^{\ell} \ip{\bz}{Q^k\mathbf{r}_t^{\ell-k}}$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
 Now, instead of ignoring the residual terms (as done in~\cite{andersen2007local,lee2014asynchronous}; cf. Section \ref{ssec:reverse}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
 Note however that the resulting error is better than ignoring the residual, and also better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\bz,\be_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
+%\begin{algorithm}[ht]
+%\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\lm)$}
+%\label{alg:linearsysest}
+%\begin{algorithmic}[1]
+%\REQUIRE Matrix $Q$, vector $\bz$, target node-index $t$.
+%\STATE{Compute estimate and residual vectors via $\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
+%\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
+%\FOR{ $i \in [n_f]$}
+%\STATE{$k \sim Unif[0, \ell]$}
+%\STATE{$S_{i,t}^\ell$ = \texttt{MCMC-SAMPLER} $(Q, k, \bz, \ell \cdot \res{\ell - k})$}
+%\ENDFOR
+%\STATE{$\pzlt = \ip{\bz}{\qest{\ell}} + \frac{1}{n_f} \sum_{i=0}^{n_f}S_{i,t}^\ell$}
+%\ENDFOR
+%\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
+%\end{algorithmic}
+%\end{algorithm} 
+
 \begin{algorithm}[ht]
-\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\lm)$}
+\caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\ell)$}
 \label{alg:linearsysest}
 \begin{algorithmic}[1]
-%\REQUIRE Matrix $Q$, source vector $\bz$ defining the system $\mathbf{x} = G \mathbf{x} + \bz$, target $t$, number of random walks $n_f$, series truncation parameter $\lm$.
-\REQUIRE Matrix $Q$, vector $\bz$, target node-index $t$.
-\STATE{Compute estimate and residual vectors via $\{\res{\ell}\}, \{\qest{\ell}\}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
-\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
+\REQUIRE Matrix $Q$, exponent $\ell$, vector $\bz$, target node-index $t$.
+\STATE{Compute estimate and residual vectors $\{\res{k}, \qest{k}\}_{\{k\leq\ell\}}$ = \texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \lm, \delta_r)$}
+%\FOR{ $l \in \{1, 2,\ldots, \lm \}$}
 \FOR{ $i \in [n_f]$}
 \STATE{$k \sim Unif[0, \ell]$}
-\STATE{$S_{i,t}^\ell$ = \texttt{MCMC-SAMPLER} $(Q, k, \bz, \ell \cdot \res{\ell - k})$}
+\STATE{$S_{i,t}^\ell$ = \texttt{MCMC-SAMPLER} $(Q, k, \bz, \res{\ell - k})$}
 \ENDFOR
-\STATE{$\pzlt = \ip{\bz}{\qest{\ell}} + \frac{1}{n_f} \sum_{i=0}^{n_f}S_{i,t}^\ell$}
-\ENDFOR
-\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
+\RETURN $\pzltest = \ip{\bz}{\qest{\ell}} + \frac{\ell+1}{n_f} \sum_{i=1}^{n_f}S_{i,t}^\ell$
+%\ENDFOR
+%\RETURN $\sum_{\ell=0}^{\lm} \pzlt$ 
 \end{algorithmic}
 \end{algorithm} 
 
+First, we observe that \texttt{BIDIR-MATRIX-POWER} always returns an unbiased estimate for $\pzlt$ for any choice of $n_f$
+
 \begin{lemma}
-\texttt{BIDIR-MATRIX-POWER} computes an unbiased estimator of $\pzlt$
-\begin{align*}
-\pzlt &=  \left<\bz, Q^l \mathbf{e}_t \right>= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz , Q^k\mathbf{r}_t^{\ell-k}\right>\\
-&= \mathbb{E}\left[\hat{\mathbf{p}}_\bz^{\ell}[t] \right]
-\end{align*}
+\texttt{BIDIR-MATRIX-POWER} returns an unbiased estimator of $\pzlt$, i.e. $\mathbb{E}[\pzltest] = \pzlt$
+%\begin{align*}
+%\EE[pzltest] = \pzlt 
+%&=  \left<\bz, Q^l \mathbf{e}_t \right>= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz , Q^k\mathbf{r}_t^{\ell-k}\right>= \mathbb{E}\left[\hat{\mathbf{p}}_\bz^{\ell}[t] \right]
+%\end{align*}
 \end{lemma}
 
 \begin{proof}
-By definition of the estimator $\pzltest$ and linearity of the expectation operator:
+By definition of $\pzltest$ and linearity of expectation
 \begin{align*}
-\mathbb{E}\left[\pzltest\right] &= \left<\bz, \mathbf{q}_t^{\ell} \right> + \frac{1}{n_f}\sum_{i=1}^{n_f} \mathbb{E}_{k \sim Unif[0, l]}\left[S_{t}^{k}\right] \\
-&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]}\left[S_{t}^{k}\right]
+\mathbb{E}\left[\pzltest\right] 
+%&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \frac{1}{n_f}\sum_{i=1}^{n_f} \mathbb{E}_{k \sim Unif[0, l]}\left[S_{t}^{k}\right] \\
+&= \left<\bz, \mathbf{q}_t^{\ell} \right> + (\ell+1)\mathbb{E}_{K \sim Unif[0, \ell]}\left[S_{t}^{K}\right]
 \end{align*}
 
-From Lemma 2, we know $\mathbb{E}\left[S_{t}^{k}\right] = \ip{\mathbf{a}}{Q^k \mathbf{b}}$ when we call \texttt{MCMC-SAMPLER}$(Q, k, \mathbf{a}, \mathbf{b})$, so in the linear system estimator, we obtain: 
+From Lemma \ref{lem:mcmc}, we know \texttt{MCMC-SAMPLER} $(Q, k, \bz, \res{k})$ returns an estimate satisfying $\mathbb{E}\left[S_{t}^{k}\right] = \ip{\bz}{Q^k \res{k}}$ for all $k\leq \ell$. Thus, with $K \sim Unif[0, \ell]$, we have
 \begin{align*}
-\mathbb{E}\left[\pzltest \right] &= \left<\bz, \mathbf{q}_t^{\ell} \right> + \mathbb{E}_{k \sim Unif[0, \ell]} \left[\ip{\bz}{Q^k ( \ell \cdot \mathbf{r}_t^{\ell-k})} \right] \\
-&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \frac{1}{\ell} \sum_{k = 0}^\ell\ip{\bz}{Q^k ( l \cdot \mathbf{r}_t^{\ell-k} )}\\
-&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k = 0}^l\ip{\bz}{Q^k\mathbf{r}_t^{\ell-k}}
+\mathbb{E}\left[\pzltest \right] &= \left<\bz, \mathbf{q}_t^{\ell} \right> + (\ell+1)\mathbb{E}_K\left[\ip{\bz}{Q^K \mathbf{r}_t^{\ell-K}} \right] \\
+&= \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k = 0}^\ell\ip{\bz}{Q^k \mathbf{r}_t^{\ell-k}}
 \end{align*}
-Recall from Lemma 1, that for any matrix $Q$ and after any sequence of reverse push operations, $\mathbf{p}_\bz^{\ell}[t] = \left<\bz, Q^{\ell} \mathbf{e}_t \right>$ obeys the invariant: 
-$$\pzlt = \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$$
-Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
+However, Lemma \ref{lem:pushinvariant} states that after any sequence of reverse push operations, we have the invariant $\pzlt = \left<\bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$. Thus, $\mathbb{E}\left[\pzltest \right] = \pzlt$.
 \end{proof}
+
+To choose $n_f$ to get the desired accuracy, we need the following concentration bound, which is a restatement of Hoeffding's inequality (cf. \sbedit{Chapter ? in}~\cite{motwani2010randomized}).
+\begin{lemma}[Hoeffding's Inequality]
+Given $\{X_i\}$ independent random variables s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
+Then $X = \sum_{i= 1}^n X_i$ satisfies
+$\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ provided that
+$$n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
+\end{lemma}
+
+\begin{proof}
+Let $X = \sum_{i=1}^n X_i$.  Since $E[X] = nE[X_i]$, $E[X] \geq n \epsilon a$. Let $t = \epsilon a$.
+\begin{align*}
+\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] 
+&\leq \mathbb{P}\left[|X - \mathbb{E}[X]| \geq nt \right] \\
+&= \mathbb{P}\left[\left|\frac{1}{n}X - \frac{1}{n}\mathbb{E}[X]\right| \geq t \right]  
+\end{align*}
+Applying Hoeffding's inequality to the rightmost term above, we obtain
+  \[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2t^2}{\sum_{i=1}^n(b_i - a_i)^2}\right) \]
+  Hence substituting the values for $t$ and $b_i = c$, $a_i = -c$ gives us:
+\[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2\epsilon^2a^2}{n(4c^2)}\right) \]
+Now set this upperbound to $p_{fail}$ to obtain the relation:
+$$ \frac{n \epsilon^2 a^2}{2c^2} = \ln\left(\frac{2}{p_{fail}} \right) $$
+Thus, for $n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$, we are guaranteed that $\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq p_{fail}$.
+
+Note that if we require the failure conditions to hold for $\lm$ sets of $X's$, then we perform a simple union bound which adds a $\lm$ in the $\frac{2}{p_{fail}}$ term.
+\end{proof} 
+
 
 
 \begin{theorem}
@@ -67,9 +110,6 @@ $$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{
 
 \end{theorem}
 \begin{proof}
-We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
-
-\end{proof}
 We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
 
 Consider the estimator $S_{t}^{\ell}$. We have already shown that $\EE\left[S_{t, i}^{\ell}\right] = \pzlt - \left< \sigma, \qest{\ell} \right>$ and computed the work to achieve relative error $\epsilon$ for these estimators. Now observe:
@@ -87,6 +127,8 @@ Substituting in this value for the forward walk work and we obtain:
 
 $$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 which is in fact the total running time.
+\end{proof}
+
 \begin{lemma}
 The work done by \texttt{MCMC-SAMPLER} with averaged score variables $\frac{1}{n_f}\sum_{i=0}^{n_f} S_{i, t}$ returns an estimator $\widehat{\EE[S_{i, t}^l]}$ with relative accuracy $\epsilon$ with probability $1-p_{fail}$ in running time
 $${O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
@@ -132,46 +174,3 @@ If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provid
 $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\mathbf{z}||} \right)$.
 Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm$ increases as $\delta$ shrinks.
 \end{proof}
-
-\begin{lemma} [Hoeffding's Inequality]
-Let $\{X_i\}$ be independent random variable s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
-Then $X = \sum_{i= 1}^n X_i$ satisfies
-$\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ provided that
-$$n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
-\end{lemma}
-
-\begin{proof}
-Let $X = \sum_{i=1}^n X_i$.  Since $E[X] = nE[X_i]$, $E[X] \geq n \epsilon a$. Let $t = \epsilon a$.
-\begin{align*}
-\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] 
-&\leq \mathbb{P}\left[|X - \mathbb{E}[X]| \geq nt \right] \\
-&= \mathbb{P}\left[\left|\frac{1}{n}X - \frac{1}{n}\mathbb{E}[X]\right| \geq t \right]  
-\end{align*}
-Applying Hoeffding's inequality to the rightmost term above, we obtain
-  \[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2t^2}{\sum_{i=1}^n(b_i - a_i)^2}\right) \]
-  Hence substituting the values for $t$ and $b_i = c$, $a_i = -c$ gives us:
-\[\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq 2\exp \left(-\frac{2n^2\epsilon^2a^2}{n(4c^2)}\right) \]
-Now set this upperbound to $p_{fail}$ to obtain the relation:
-$$ \frac{n \epsilon^2 a^2}{2c^2} = \ln\left(\frac{2}{p_{fail}} \right) $$
-Thus, for $n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$, we are guaranteed that $\mathbb{P}\left[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] \right] \leq p_{fail}$.
-
-Note that if we require the failure conditions to hold for $\lm$ sets of $X's$, then we perform a simple union bound which adds a $\lm$ in the $\frac{2}{p_{fail}}$ term.
-\end{proof} 
-
-\begin{comment}
-\subsection{Useful Tail Inequalities}
-Suppose $X_i$ are i.i.d with $\mathbb{E}[X_i]=\mu$, $Var(X_i)=\sigma^2$ and $X_i\in [a,b]$. Then:
-\begin{itemize}
-\item Hoeffding's Inequality:
-\begin{equation*}
-\mathbb{P}\left[\left|\left(\frac{1}{n}\sum_{i=1}^nX_i\right)-\mu \right|\geq\epsilon|\mu|\right]\leq
-2\exp\left(\frac{-2n\epsilon^2\mu^2}{(b-a)^2}\right)
-\end{equation*}
-\item Bernstein's Inequality: 
-\begin{equation*}
-\mathbb{P}\left[\left|\left(\frac{1}{n}\sum_{i=1}^nX_i\right)-\mu\right|\geq\epsilon|\mu|\right]\leq
-2\exp\left(\frac{-n\epsilon^2\mu^2}{2\sigma^2+\frac{2}{3}\epsilon|\mu|(b-a)}\right)
-\end{equation*}
-\end{itemize}
-
-\end{comment}
