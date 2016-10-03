@@ -61,8 +61,8 @@ Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
 
 
 \begin{theorem}
-Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\ip{\mathbf{x}}{\mathbf{e}_t}$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
-$$ \mathcal{O}\left( \left(\frac{\lm^5 nnz(Q)\left(\ln \frac{\lm}{p_{fail}} \right)^2}{n} \right)^{1/3} \left( \frac{\beta^{\lm} |\mathbf{z}|_1}{\epsilon \delta}\right)^{4/3} \right) $$
+Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\mathbf{x}[t]$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
+$$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 
 \end{theorem}
 \begin{proof}
@@ -84,7 +84,7 @@ By Lemma 6, we get that the forward and reverse work running times are equal asy
 $$\delta_r = \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{n\lm |\mathbf{z}|_1^2\beta^{2\lm}\ln(\lm/p_{fail}) } }$$
 Substituting in this value for the forward walk work and we obtain:
 
-$$ \mathcal{O}\left( \left(\frac{\lm^5 nnz(Q)\left(\ln \frac{\lm}{p_{fail}} \right)^2}{n} \right)^{1/3} \left( \frac{\beta^{\lm} |\mathbf{z}|_1}{\epsilon \delta}\right)^{4/3} \right) $$
+$$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 which is in fact the total running time.
 \begin{lemma}
 The work done by \texttt{MCMC-SAMPLER} with averaged score variables $\frac{1}{n_f}\sum_{i=0}^{n_f} S_{i, t}$ returns an estimator $\widehat{\EE[S_{i, t}^l]}$ with relative accuracy $\epsilon$ with probability $1-p_{fail}$ in running time
@@ -136,7 +136,7 @@ Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm
 Let $\{X_i\}$ be independent random variable s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
 Then $X = \sum_{i= 1}^n X_i$ satisfies
 $\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ provided that
-$$n \geq \frac{4c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
+$$n \geq \frac{2c^2}{\epsilon^2 a^2}\ln\left(\frac{2}{p_{fail}} \right)$$
 \end{lemma}
 
 \begin{proof}
