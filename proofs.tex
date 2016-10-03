@@ -13,7 +13,7 @@ Intuitively, the advantage we gain from combining the two previous algorithms is
 More specifically, given a desired error threshold $\delta$, we first run \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ for an appropriately chosen $\delta_r\gg\delta$ (cf. Theorem \ref{thm:main}). 
 At this point, from Lemma \ref{lem:pushinvariant}, we know that we have
 $\pzlt = \ip{\bz}{\mathbf{q}_t^{\ell}} + \sum_{k=0}^{\ell} \ip{\bz}{Q^k\mathbf{r}_t^{\ell-k}}$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
-Now, instead of ignoring the residual terms (as we suggest in \ref{ssec:reverse}; this is the approach used in~\cite{andersen2007local,lee2014asynchronous}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
+Now, instead of ignoring the residual terms (as done in~\cite{andersen2007local,lee2014asynchronous}; cf. Section \ref{ssec:reverse}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
 Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\bz,\be_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
 \begin{algorithm}[ht]
 \caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\lm)$}
