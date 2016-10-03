@@ -140,17 +140,17 @@ Thus, the expected running time over a uniform random choice of $t\in[n]$ is giv
 \label{ssec:forwardwork}
 
 
-In the previous section, we computer $\pzlt$ by working backwards from $t$. 
+In the previous section, we computed $\pzlt$ by working backwards from $t$. 
 Note that our final algorithm is independent of $\bz$.
 We now present an alternate technique which is based on a forward MCMC sampling technique called the von Neumann-Ulam scheme. 
-Note that in this case, the algorithm starts from $\bz$, and computes $\pzlt$ for all $t\in[n]$.
+In this case, the algorithm starts from $\bz$, and computes $\pzlt$ for all $t\in[n]$.
 
 More generally, given any vectors $\mathbf{a}$ and $\mathbf{b}$ and matrix $Q$, the von Neumann-Ulam scheme can be used for computing $\ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$.
 To understand the algorithm, note that we can expand $\ip{\mathbf{a}}{Q^{\ell}\mathbf{b}}$ as the sum $\sum_{(v_0,\ldots, v_{\ell}) \in V^{\ell}}\left(\prod_{j \in [{\ell}]} Q_{v_{j-1}v_{j}} \right) \mathbf{a}[v_0] \mathbf{b}[v_{\ell}]$. 
-Now we can interpret this sum as an expectation over a ${\ell}$-step random walk $W = (V_0,V_1,\ldots,V_{\ell})$ on $\G$, specified as follows:
+Now we can interpret this sum as an expectation over an ${\ell}$-step random walk $W = (V_0,V_1,\ldots,V_{\ell})$ on $\G$, specified as follows:
 \begin{itemize}
-\item $V_0$, the starting node for the random walk, is sampled from $\sigma_{\mathbf{a}} = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in [n]}$, and has an associated weight $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$.
-\item The transition probability matrix for the walk is given by $P = \{|Q_{ij}|/||Q_i||_1\}$ (where $||Q_i||_1$ is the $1$-norm of the $i^{th}$ row of $Q$).
+\item $V_0$, the starting node for the random walk, is sampled from $\sigma_{\mathbf{a}} = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in [n]}$, and has an associated weight $w_{V_0} = sgn(\mathbf{a}[V_0])||\mathbf{a}||_1$.
+\item The transition probability matrix for the walk is given by $P_{ij} = \{|Q_{ij}|/||Q_i||_1\}$ (where $||Q_i||_1$ is the $1$-norm of the $i^{th}$ row of $Q$).
 \item Each edge $(i,j)\in E$ has associated weight $w_{ij} = sgn(Q_{ij})||Q_i||_1$. 
 \item The `score' for a walk $W$ is the product of weights of traversed edges, i.e.,
 $$S_t^{\ell}(W) = w_{V_0}\prod_{i=0}^{{\ell}-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]$$
@@ -165,8 +165,8 @@ This procedure is summarized in Algorithm \ref{alg:fwalk}.
 \label{alg:fwalk}
 \begin{algorithmic}[1]
 \REQUIRE Matrix $Q$, exponent ${\ell}$, vectors $\mathbf{a}$ and $\mathbf{b}$
-\STATE{Construct transition matrix $P = \{|Q_{ij}|/||Q_i||_1\}$ and starting measure $\sigma_a = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in V}$}
-\STATE{Define node weights $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$ and edge weights $w_{V^iV^j} = sign(Q_{V^iV^j})||Q_i||_1$}
+\STATE{Construct transition matrix $P_{ij} = \{|Q_{ij}|/||Q_i||_1\}$ and starting measure $\sigma_a = \{|\mathbf{a}[i]|/||\mathbf{a}||_1\}_{i\in V}$}
+\STATE{Define node weights $w_{V_0} = sgn(\mathbf{a}[V_0])||\mathbf{a}||_1$ and edge weights $w_{V^iV^j} = sgn(Q_{V^iV^j})||Q_i||_1$}
 \STATE{Construct source distribution $\sigma_{\mathbf{a}}$ with $\sigma_{\mathbf{a}}[i] = \frac{\bz[i]}{||\bz||_1}$}
 \STATE{Sample $V^0 \sim \sigma_a$, and generate a random walk $W = \{V^0, V^1,\ldots, V^{\ell}\}$ of length ${\ell}$ on $\G$  using transition probability $P$.}
 \RETURN Walk-score $S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{{\ell}-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]$
@@ -193,8 +193,8 @@ We can expand $\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\e
 \small
 \begin{align*}
 &\mathbb{E}_{W \sim \sigma_{\mathbf{a}}(P)^{\ell}} \left[S_{t}^{\ell}(W)\right] \\ 
-&= \sum_{(V^0, ... V^{\ell}) \in [n]^{\ell+1}} \left(\frac{sign(\mathbf{a}[V_0])||\mathbf{a}||_1|\mathbf{a}[V^0]|}{||\mathbf{a}||_1} \right. \\
-&\left. \times \left( \prod_{j \in [0, \ell-1]} \frac{sign(Q_{V^jV^{j+1}}||Q_{V^j}||_1)|Q_{V^jV^{j+1}}|}{||Q_{V^j}||_1} \right) \mathbf{b}[V^{\ell}] \right) \\
+&= \sum_{(V^0, ... V^{\ell}) \in [n]^{\ell+1}} \left(\frac{sgn(\mathbf{a}[V_0])||\mathbf{a}||_1|\mathbf{a}[V^0]|}{||\mathbf{a}||_1} \right. \\
+&\left. \times \left( \prod_{j \in [0, \ell-1]} \frac{sgn(Q_{V^jV^{j+1}}||Q_{V^j}||_1)|Q_{V^jV^{j+1}}|}{||Q_{V^j}||_1} \right) \mathbf{b}[V^{\ell}] \right) \\
 & = \sum_{(V^0, ... V^{k}) \in [n]^{\ell+1}} \left(\mathbf{a}[V_0] \left( \prod_{j \in [0,\ell-1]} Q_{V^jV^{j+1}}\right) \mathbf{b}[V^{\ell}] \right)
 \end{align*}
 \normalsize
@@ -206,8 +206,8 @@ Next, in order to bound the score $S_{t}^{\ell}(W)$, recall that
 S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{\ell-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]
 \end{align*}
 
-We defined $w_{V_0} = sign(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
-Additionally, $w_{V_iV_{i+1}} = sign(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^{\ell}] |\leq ||\mathbf{b}||_\infty$.
+We defined $w_{V_0} = sgn(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
+Additionally, $w_{V_iV_{i+1}} = sgn(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^{\ell}] |\leq ||\mathbf{b}||_\infty$.
 Hence, since we are multiplying ${\ell}$ edge scores, we finally obtain
 $|S_{t}^{\ell}(W)| \leq ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
 \end{proof}
