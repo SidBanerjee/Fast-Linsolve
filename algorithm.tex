@@ -24,11 +24,11 @@ One approach for estimating $\pzlt$ is via a standard power iteration for comput
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
-This is directly adapted from the algorithm in Andersen \cite{andersen2007local} for the personal PageRank problem (and more generally for a stochastic matrix $Q$); however, it is straightforward to show that the invariant that holds for any matrix $Q$ (it does not require $Q$ to be full rank, as we have assumed).
+This is directly adapted from the algorithm in Andersen \cite{andersen2007local} for the personal PageRank problem (and more generally for a stochastic matrix $Q$); however, it is straightforward to show that the invariant from \cite{andersen2007local} holds for any matrix $Q$ (it does not require $Q$ to be full rank, as we have assumed).
  
 The \texttt{REVERSE-PUSH} operation is a standard dynamic programming iteration which is used to compute an estimate $\pzltest$ by proceeding `in reverse' from $t$. 
 Essentially,\texttt{REVERSE-PUSH} is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$ ; instead of performing a full power-iteration, it adaptively exploits any sparsity in the computation.
-This operation was defined in the form given below in \cite{andersen2007local}, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
+This operation was defined in \cite{andersen2007local} as specified below, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
 
 
 For each step-index $k \in\{0,1,\ldots,\ell \}$, we store two vectors: the \emph{estimate vector} $\qest{k}$ and the \emph{residual vector} $\res{k}$.
@@ -62,7 +62,7 @@ For the sake of completeness, we present a proof below for general matrices, ada
 
 \begin{proof}
 For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\bz^{\ell}[t] = \ip{\bz }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
-Now, assuming the invariant holds at any stage with vectors $\{\qest{k}\}, \{\res{k}\}_{k\in[\ell]}$, and let $\{\qestnew{k}\}, \{\resnew{k}\}_{k\in[\ell]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\ell]$ and $\bz\in\setR^n$. We define:
+Now, assuming the invariant holds at any stage with vectors $\{\qest{k}\}, \{\res{k}\}_{k\in[\ell]}$, let $\{\qestnew{k}\}, \{\resnew{k}\}_{k\in[\ell]}$ be the new vectors after executing a \texttt{REVERSE-PUSH}$(t,v,k)$ operation for any given $k\in[\ell]$ and $\bz\in\setR^n$. We define:
 $$\Delta_v^{k} = \left( \mathbf{\tilde{q}}_t^{\ell} + \sum_{i=0}^{\ell}  (Q^i)\resnew{\ell-i} \right)- \left( \qest{\ell} + \sum_{i=0}^{\ell}  (Q^i) \mathbf{r}_t^{\ell-i}\right)$$
 Now to show that the invariant holds following \texttt{REVERSE-PUSH}$(t,v,k)$, it suffices to show that $\Delta_v^{k}$ is zero for any $v\in V$ and $k\in[\ell]$. 
 
@@ -84,7 +84,7 @@ $(iii)$ Finally, when $\ell > k$, we have:
 Hence we have shown that the invariant is preserved for any sequence of reverse push operations.
 \end{proof}
 
-The above invariant gives a natural iterative algorithm for computing $\pzlt$: perform repeated \texttt{REVERSE-PUSH} operations, controlling the residual vectors $\mathbf{r}_t^k$, and use $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
+The above invariant gives a natural iterative algorithm for computing $\pzlt$: perform repeated \texttt{REVERSE-PUSH} operations controlling the residual vectors $\mathbf{r}_t^k$, and use $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
 In particular, placing an upper bound on the infinity norm (i.e., the maximum absolute value of the residual vectors) of some chosen $\delta_r>0$ gives us the error bounds: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
