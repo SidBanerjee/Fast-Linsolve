@@ -52,6 +52,7 @@ Note however that the resulting error is better than ignoring the residual, and 
 First, we observe that \texttt{BIDIR-MATRIX-POWER} always returns an unbiased estimate for $\pzlt$ for any choice of $n_f$
 
 \begin{lemma}
+\label{lem:unbiased}
 \texttt{BIDIR-MATRIX-POWER} returns an unbiased estimator of $\pzlt$, i.e. $\mathbb{E}[\pzltest] = \pzlt$
 %\begin{align*}
 %\EE[pzltest] = \pzlt 
@@ -77,6 +78,7 @@ However, Lemma \ref{lem:pushinvariant} states that after any sequence of reverse
 
 To choose $n_f$ to get the desired accuracy, we need the following concentration bound, which is a restatement of Hoeffding's inequality (cf. Chapter $1$ in~\cite{dubhashi2009concentration}).
 \begin{lemma}[Hoeffding's Inequality]
+\label{lem:hoeff}
 Given $\{X_i\}$ independent random variables s.t. for all $i$, $X_i \in [-c, c]$ a.s., and $|\mathbb{E}[X_i]| \geq a$. 
 Then $X = \sum_{i= 1}^n X_i$ satisfies
 $\mathbb{P}[|X - \mathbb{E}[X]| \geq \epsilon \mathbb{E}[X] ] \leq p_{fail}$ provided that
@@ -112,80 +114,48 @@ Now we have our main theorem:
 \label{thm:main}
 Given matrix $Q$ and vector $\bz$, let $\pzltest$ be the estimate of $\pzlt$ returned by the \texttt{BIDIR-MATRIX-POWER} algorithm with 
 \begin{align*}
-\delta_r &= \sqrt[3]{\frac{nnz(Q)(\lm + 1) \epsilon^2\delta^2}{n\lm^2 |\mathbf{z}|_1^2\beta^{2\lm - 1}\ln(\lm/p_{fail}) } }, \\
-n_f &= \frac{2 \lm^2|\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)
+\delta_r &= \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{\ell^2 n||\bz||_1^2\beta^{\ell}\ln(\ell/p_{fail}) } }\\
+n_f &= \frac{2 \lm^2|\bz|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
 \end{align*}
 Then we have the following
 \begin{itemize}
 \item For all $t\in[n]$, we have $|\pzltest-\pzlt|\leq \max\{\delta,\epsilon\pzlt\}$ with probability at least $1-p_{fail}$ 
 \item For a uniform random choice of $t\in[n]$, the expected running time of the algorithm is
 $$
-\mathbb{E}[T(t)] = O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
+\mathbb{E}[T(t)] = O\left( \left(\frac{||\bz||_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \ell^{5/3}\left(\ln \frac{2}{p_{fail}} \right)^{1/3} \right)$$
 \end{itemize}
 \end{theorem}
 
+In particular, suppose we choose $\delta = 1/n$, and assuming $||\bz||_1\leq 1$ and $||Q||_{\infty}\leq 1$, and $\ell,1/p_{fail}=O(1)$, then we get $\mathbb{E}[T(t)] = O\left(\left(nnz(Q)/\epsilon\right)^{2/3}\right)$, as stated in Section \ref{sec:intro}.
+
 \begin{proof}
-We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
-
-Consider the estimator $S_{t}^{\ell}$. We have already shown that $\EE\left[S_{t, i}^{\ell}\right] = \pzlt - \left< \sigma, \qest{\ell} \right>$ and computed the work to achieve relative error $\epsilon$ for these estimators. Now observe:
-
+%We will prove this statement by first considering the single estimator $\pzltest$ for some $\ell$ since $\ip{\mathbf{x}_t}{\mathbf{e}_t} = \sum_{l=0}^{\infty} \pzlt$.
+Consider the random walk-score $\mathcal{S}_{t}^{\ell} = ((\ell+1)/n_f)\sum_{i=1}^{n_f}S_{i,t}^{\ell}$ as in Algorithm \ref{alg:linearsysest}. 
+From Lemma \ref{lem:unbiased} we have that $\EE\left[\mathcal{S}_{t}^{\ell}\right] = \pzlt - \ip{\sigma}{\qest{\ell}}$; moreover, from Lemma \ref{lem:mcmc}, we have that $|\mathcal{S}_{t}^{\ell}|\leq (\ell+1)||\bz||_1\delta_r\beta^{\ell}$.
+Thus, to achieve relative error $\epsilon$ with probability at least $1-p_{fail}$, we have from Lemma \ref{lem:hoeff} that we need
 \begin{align*}
-&\mathbb{P}\left[ | \pzltest - \pzlt| \geq  \epsilon \pzlt \right] \\
-&\leq \mathbb{P}\left[ |X -\mathbb{E}[X]| \geq \epsilon \mathbb{E}[X]\right] \leq p_{fail}
+n_f\geq \frac{2 (\ell+1)^2|\bz|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{2}{p_{fail}}\right)
 \end{align*}
-By Lemma 5, the work done by \texttt{MCMC-SAMPLER} to achieve relative accuracy $\epsilon$ with probability $1-p_{fail}$ is 
-$$ {O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right) $$
-
-By Lemma 6, we get that the forward and reverse work running times are equal asymptotically if we set 
-$$\delta_r = \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{n\lm |\mathbf{z}|_1^2\beta^{2\lm}\ln(\lm/p_{fail}) } }$$
-Substituting in this value for the forward walk work and we obtain:
-
-$$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
-which is in fact the total running time.
-\end{proof}
-
-\begin{lemma}
-The work done by \texttt{MCMC-SAMPLER} with averaged score variables $\frac{1}{n_f}\sum_{i=0}^{n_f} S_{i, t}$ returns an estimator $\widehat{\EE[S_{i, t}^l]}$ with relative accuracy $\epsilon$ with probability $1-p_{fail}$ in running time
-$${O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
-provided that $q$
-\end{lemma}
-
-\begin{proof}
-Let $X_i = S_{t, i}^{\ell}$ and $X = \sum_{i=1}^n X_i$. Then $X_i \in [-\lm|\mathbf{z}|_1\delta_r \beta^{\lm}, \lm|\mathbf{z}|_1\delta_r \beta^{\lm}]$ by Lemma 3. Since $\EE[X_i] \geq \delta$, we let $c = \lm |\mathbf{z}|_1\delta_r \beta^{\lm}$, $a = \delta$ and by Lemma 6
-$$n_f \geq \frac{2 \lm^2|\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)$$
-random walks to ensure that $\mathbb{P}\left[ | \widehat{\EE[S_{i, t}^l]}  -  \EE[S_{i, t}^l]|  \geq  \epsilon  \EE[S_{i, t}^l] \right] \leq p_{fail}$ holds for $\lm$ sets of $\pzltest$.
-Hence, the total work in the forward estimate to ensure 
-$\mathbb{P}\left[ |X -  \EE[X]]|  \geq  \epsilon  \EE[X] \right] \leq p_{fail}$ for $\lm$ sets of estimators $X$ is
-$${O}\left(\frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
-\end{proof}
-
-\begin{lemma}
-Set 
-$$\delta_r = \sqrt[3]{\frac{nnz(Q)(\lm + 1) \epsilon^2\delta^2}{n\lm^2 |\mathbf{z}|_1^2\beta^{2\lm - 1}\ln(\lm/p_{fail}) } }$$
-to balance the reverse push and forward walk work.
-\end{lemma}
-\begin{proof}
-From Lemma 2, the work from the reverse push operation is
-$O\left(\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta\right)$.
-To get the optimal running time asymptotically, we set the forward work and reverse work equal to each other and solve for $\delta_r$:
-\[\frac{nnz(Q)}{n\delta_r}(\lm+1)\beta = \frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right) \]
-Thus we obtain
-\begin{equation*}
-\delta_r = \sqrt[3]{\frac{nnz(Q)(\lm + 1) \epsilon^2\delta^2}{\lm^2 n|\mathbf{z}|_1^2\beta^{2\lm -1}\ln(\lm/p_{fail}) } }
-\end{equation*}
-For $\lm$ sufficiently large, we can replace $\lm + 1$ with just $\lm$ and $\beta^{2\lm -1}$ with $\beta^{2\lm}$.
+Given this choice, we know that the running time for the forward MCMC sampling is $O(n_f\ell)$; moreover, from Lemma \ref{lem:pushruntime}, we get that the reverse work running time for a uniform random choice of $t\in[n]$ is $\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell}$. 
+Now substituting the value of $\delta_r$ given in the statement (which is chosen to balance the two running times), we get the promised running time guarantee.
+%\[\frac{nnz(Q)}{n\delta_r}(\ell+1)\beta^{\ell} = \frac{(\ell+1)^2 \delta_r^2||\bz||_1^2 \beta^{2\ell}}{\epsilon^2\delta^2}\ln \left(\frac{\ell+1}{p_{fail}}\right) \]
+%Thus we obtain
+%\begin{equation*}
+%\delta_r = \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{\ell^2 n||\bz||_1^2\beta^{\ell}\ln(\ell/p_{fail}) } }
+%\end{equation*}
+%$$\mathbb{E}[T(t)] = O\left( \left(\frac{\lm^2 |\bz|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
+%which is in fact the total running time.
 \end{proof}
 
 
-
 \begin{lemma}
-Set $\lm = \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to satisfy additive error threshold of $\delta$.
+Set $\lm = \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$  to satisfy additive error threshold of $\delta$.
 \end{lemma}
 \begin{proof}
-Note that $\lm$ controls error by truncating the power series $\sum_{l=0}^\infty \ip{\mathbf{z}}{Q^l\mathbf{e}_t}$.
-Suppose we have this error as $\Delta =\sum_{l=0}^\infty \ip{\mathbf{z}}{Q^l\mathbf{e}_t} - \sum_{l=0}^{\lm} \ip{\mathbf{z}}{Q^l\mathbf{e}_t} = \ip{\mathbf{z}}{Q^{\lm} \sum_{l=1}^\infty Q^{\ell} \mathbf{e}_t}$.
-Then $\Delta(\lm) \leq ||\mathbf{z}|| \frac{\rho(G)^{\lm}}{1 - \rho(G)}$.
-If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provided $\delta \leq ||\mathbf{z}||$, we have
-$\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\mathbf{z}||} \right)$.
+Note that $\lm$ controls error by truncating the power series $\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t}$.
+Suppose we have this error as $\Delta =\sum_{l=0}^\infty \ip{\bz}{Q^l\mathbf{e}_t} - \sum_{l=0}^{\lm} \ip{\bz}{Q^l\mathbf{e}_t} = \ip{\bz}{Q^{\lm} \sum_{l=1}^\infty Q^{\ell} \mathbf{e}_t}$.
+Then $\Delta(\lm) \leq ||\bz|| \frac{\rho(G)^{\lm}}{1 - \rho(G)}$.
+If we want additive error $\delta$ (that is, $ \delta \leq \Delta(\lm)$), provided $\delta \leq ||\bz||$, we have
+$\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\delta(1 - \rho(G))}{||\bz||} \right)$.
 Recall that $\rho(G) < 1$, so $\ln \rho(G) < 0$ and the suggested value for $\lm$ increases as $\delta$ shrinks.
 \end{proof}
