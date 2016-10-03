@@ -71,25 +71,15 @@ Thus to find the $t$ component of the solution vector $\mathbf{x}$, or $\mathbf{
 Computing $\mathbf{x}[t]$ thus amounts to computing $\pzlt := \ip{G^{\ell}\mathbf{z}}{\mathbf{e}_t} = \ip{\mathbf{z}}{(G^T)^{\ell}\mathbf{e}_t}$ for any $\ell$, and taking their sum over $\ell \in \{0,\ldots,\lm\}$, where $\lm$ is a finite term truncation of the power series.
 %If $Q:=G^T$ is a stochastic matrix, then prior work by Banerjee and Lofgren \cite{banerjee2015fast} shows how to compute $\pzlt$ for the special case where $\mathbf{z}$ is a probability vector and $Q$ is a \emph{stochastic matrix} (i.e., with all nonnegative entries, and each row summing to $1$). 
 %We now extend this result for any $\mathbf{z}$ and a special class of matrices $Q$.
-Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\mathbf{z}$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$.
-\nsedit{
-\begin{proof}
-Let $\varepsilon$ be the error from truncating the power series to $\lm$. Then by definition:
-\begin{align*}
-\varepsilon &= \left|\sum_{\ell=0}^\infty \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} - \sum_{\ell=0}^{\lm} \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} \right| \\
-%&=\left| \sum_{\ell= \lm+1}^\infty \ip{\mathbf{z}}{Q^\ell\mathbf{e}_t} \right|\\
-&= \left| \ip{\mathbf{z}}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\mathbf{e}_t} \right|\\
-\end{align*} 
-For any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
+Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\mathbf{z}$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$. 
+To see this, note that the error from truncating upto $\lm$ terms is given by $ERR_{\lm} = \left| \ip{\mathbf{z}}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\mathbf{e}_t} \right|$. Now, for any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
 Hence we have
-$\varepsilon \leq %||\mathbf{z}|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
+$ERR_{\lm} \leq %||\mathbf{z}|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
  ||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)$
-Now suppose we want our error $\epsilon \leq \Delta$. Then we can set the upper bound for $\epsilon$ to $\Delta$ and solve for $\lm$.
+Using $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right)$, we get $ERR_{\lm} \leq \Delta$.
 %\begin{align*}
 %||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right) =  \Delta \\
 %(\lm + 1)\ln \rho(Q) = \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) \\
 %$\lm = \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) - 1$
-Thus, if we take $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right)$, we will have an error of at most $\Delta$ when approximating the series.
-\end{proof}
-Since we can a priori bound the error resulting from truncating the von Neumann series to $\lm$, we will focus on the problem of estimating $\pzlt$. It is then straightforward to develop overall error bounds by combining the results of the additive truncation error $\Delta$ and the relative error guarantees we prove for our bidirectional algorithm in Theorem 1. 
-}
+
+%Since we can a priori bound the error resulting from truncating the von Neumann series to $\lm$, we will focus on the problem of estimating $\pzlt$. It is then straightforward to develop overall error bounds by combining the results of the additive truncation error $\Delta$ and the relative error guarantees we prove for our bidirectional algorithm in Theorem 1. 

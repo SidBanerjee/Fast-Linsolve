@@ -2,7 +2,7 @@
 \section{Existing Algorithms for Estimating Matrix Powers}
 \label{sec:existing}
 
-As mentioned above, our main contribution in this work is a bidirectional algorithm for estimating $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
+Based on the above discussion, we henceforth focus on developing bidirectional algorithms for estimating $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
 To do so, we first describe two existing algorithms that we use as primitives for our procedure: a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a local variational method proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
 We present these along with statements of their correctness and running time -- some of these results follow directly from previous work (as we note in the appropriate sections), and their proofs are included here mainly for the sake of completeness.
 
