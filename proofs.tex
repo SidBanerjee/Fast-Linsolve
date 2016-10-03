@@ -6,14 +6,14 @@
 Finally, we present our main contribution: a bidirectional estimator for $\pzlt = \langle\bz,Q^{\ell}\be_t\rangle$. 
 Our algorithm follows the general structure proposed by Lofgren et al.~\cite{Lofgren2014,banerjee2015fast} for PageRank and Markov Chain transition probability estimation.
 It comprises of two distinct components: first we use  \texttt{REVERSE-LOCAL-UPDATE} to estimate approximate values of $\left(Q^{\ell}\be_t\right)[i]$ for all steps $\ell \in[\lm]$ and $i\in[n]$. 
-We then use\texttt{MCMC-SAMPLER} to reduce the error in these estimates to get our desired accuracy.
+We then use \texttt{MCMC-SAMPLER} to reduce the error in these estimates to get our desired accuracy.
 
 
-Specifically, combining the two previous algorithms allows us to perform sampling more effectively by reducing the variance in the walk scores.
-To achieve this, given a desired error threshold $\delta$, we first run \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ for an appropriately chosen $\delta_r\gg\delta$ (\sbedit{cf. Theorem \ref{}}). 
+Intuitively, the advantage we gain from combining the two previous algorithms is that running a small amount of local-update reduces the variance in the walk-scores significantly, which then allows us to perform sampling more effectively.
+More specifically, given a desired error threshold $\delta$, we first run \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$ for an appropriately chosen $\delta_r\gg\delta$ (cf. Theorem \ref{thm:main}). 
 At this point, from Lemma \ref{lem:pushinvariant}, we know that we have
-$\pzlt = \left< \bz, \mathbf{q}_t^{\ell} \right> + \sum_{k=0}^{\ell} \left<\bz, Q^k\mathbf{r}_t^{\ell-k}\right>$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
-Now, instead of ignoring the residual terms (as we suggest in \ref{ssec:reverse}; this is the approach used in~\cite{andersen2007local,lee2014asynchronous}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
+$\pzlt = \ip{\bz}{\mathbf{q}_t^{\ell}} + \sum_{k=0}^{\ell} \ip{\bz}{Q^k\mathbf{r}_t^{\ell-k}}$, with $\mathbf{r}_t^{k}[v]\leq\delta_r$ for all $v\in[n],k\leq\ell$.
+Now, instead of ignoring the residual terms (as done in~\cite{andersen2007local,lee2014asynchronous}; cf. Section \ref{ssec:reverse}), we can further reduce our error by using \texttt{MCMC-SAMPLER}$(Q,k,\bz,\mathbf{r}_t^k)$ to estimate the residual $\langle\bz,\mathbf{r}_t^k\rangle$ for all $k\leq\ell$.
 Note however that this is better than directly executing \texttt{MCMC-SAMPLER}$(Q,\ell,\bz,\be_{t})$, as the residuals have much smaller magnitude than $1$, and hence the walk-scores have lower variance.
 \begin{algorithm}[ht]
 \caption{\texttt{BIDIR-MATRIX-POWER}$(Q, \bz, t,\lm)$}
@@ -61,6 +61,7 @@ Hence $\mathbb{E}\left[\pzltest \right] = \pzlt$.
 
 
 \begin{theorem}
+\label{thm:main}
 Theorem: LINEAR-SYSTEM-ESTIMATOR estimates $\mathbf{x}[t]$ with relative accuracy $\epsilon$ and with probability $1-p_{fail}$ in running time 
 $$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{2/3} \left(\ln \frac{\lm}{p_{fail}} \right)^{1/3} \right)$$
 
