@@ -19,11 +19,11 @@ Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e.,
 \subsection{Computing Matrix Powers via Iterative Local-Update}
 \label{ssec:reverse}
 
-One approach towards estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}\be_t$. 
+One approach for estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}\be_t$. 
 In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
-This is directly adapted from the algorithm in Andersen \cite{andersen2007local} for the personal PageRank problem (and more generally for a stochastic matrix $Q$); however, it is straightforward to show that the invariant that holds for any matrix $Q$ (in fact, it does not require $Q$ to be full rank, as we have assumed).
+This is directly adapted from the algorithm in Andersen \cite{andersen2007local} for the personal PageRank problem (and more generally for a stochastic matrix $Q$); however, it is straightforward to show that the invariant that holds for any matrix $Q$ (it does not require $Q$ to be full rank, as we have assumed).
  
 The \texttt{REVERSE-PUSH} operation is a standard dynamic programming iteration which is used to compute an estimate $\pzltest$ by proceeding `in reverse' from $t$. 
 Essentially,\texttt{REVERSE-PUSH} is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$ ; instead of performing a full power-iteration, it adaptively exploits any sparsity in the computation.
@@ -83,9 +83,9 @@ $(iii)$ Finally, when $\ell > k$, we have:
 Hence we have shown that the invariant is preserved for any sequence of reverse push operations.
 \end{proof}
 
-The above invariant gives a natural iterative algorithm for computing $\pzlt$, by performing repeated \texttt{REVERSE-PUSH} operations and controlling the residual vectors $\mathbf{r}_t^k$, and using $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
+The above invariant gives a natural iterative algorithm for computing $\pzlt$: perform repeated \texttt{REVERSE-PUSH} operations, controlling the residual vectors $\mathbf{r}_t^k$, and use $\pzltest = \langle\bz,\mathbf{q}_t^{\ell}\rangle$ as the estimate. 
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
-In particular, controlling the infinity norm (i.e., the maximum absolute value of the residual vectors) to be less than some chosen $\delta_r>0$ gives us a bound: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
+In particular, placing an upper bound on the infinity norm (i.e., the maximum absolute value of the residual vectors) of some chosen $\delta_r>0$ gives us the error bounds: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r\beta^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
 \begin{algorithm}[ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \ell, \delta_r)$}
@@ -123,7 +123,7 @@ Also, note that under $Q^+$, since all residuals are positive, we have that for 
 
 Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{k}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$. 
 %Recall we define $\beta = \max\{1,||Q||_{\infty}\}$.
-Recall we define $\beta = ||Q||_{\infty}$.From Algorithm \ref{alg:rwork}, we have $\hat{T}(t) = \sum_{k=0}^{\ell}\sum_{v\in[n]}\mathds{1}_{\mathbf{r}_t^{k}[v]>\delta_r}$.
+From Algorithm \ref{alg:rwork}, we have $\hat{T}(t) = \sum_{k=0}^{\ell}\sum_{v\in[n]}\mathds{1}_{\mathbf{r}_t^{k}[v]>\delta_r}$.
 Thus, the expected running time over a uniform random choice of $t\in[n]$ is given by
 \begin{align*}
 \frac{1}{n}\sum_t\hat{T}(t) &= \frac{1}{n}\sum_{t\in[n]}\sum_{k=0}^{\ell}\sum_{v\in[n]}\mathds{1}_{\{\mathbf{r}_t^{k}>\delta_r\}}d_v\\
@@ -209,6 +209,6 @@ S_{t}^{\ell}(W) = w_{V_0}\prod_{i=0}^{\ell-1}w_{V_iV_{i+1}}\mathbf{b}[V_{\ell}]
 We defined $w_{V_0} = sgn(\mathbf{a}[V_0])||\mathbf{a}||_1$, so trivially $|w_{V_0}| \leq ||\mathbf{a}||_1$.
 Additionally, $w_{V_iV_{i+1}} = sgn(Q_{V^iV^j})||Q_i||_1 $ and by definition $||Q_i||_1  \leq ||Q||_{\infty}$ and $| \mathbf{b}[V^{\ell}] |\leq ||\mathbf{b}||_\infty$.
 Hence, since we are multiplying ${\ell}$ edge scores, we finally obtain
-$|S_{t}^{\ell}(W)| \leq ||Q||_{\infty}^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
+$|S_{t}^{\ell}(W)| \leq \beta^{\ell}||\mathbf{a}||_1||\mathbf{b}||_\infty$ as stated in the lemma.
 \end{proof}
 
