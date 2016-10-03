@@ -17,27 +17,38 @@ Our work generalizes these techniques to more general $A,\bz$; in particular, ou
 Given matrix $A$ (with $||A||_1\leq 1$), vector $z$ (with $||z||_1\leq 1$) and any index $t$ in $[n]$, Algorithm \texttt{BIDIR-MATRIX-POWER} (cf. Section \ref{ssec:bidiralgo}) returns estimate $\pzltest$ such that with high probability $|\pzlt-\pzltest|<\max\{\epsilon\pzlt,1/n\}$, with average running time of $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{2/3}\right)$ for uniform random choice of $t$.
 \end{proposition}	
 
-This result is interesting in that it generalizes the existing results for stochastic matrices to arbitrary matrices, albeit with a loss in the running time scaling~\footnote{For estimating $\ell$-step transition probabilities, the running time of an equivalent algorithm in ~\cite{banerjee2015fast} is $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{1/2}\right)$ for uniform random choice of $t$.}. 
-Moreover, computing $\left(A^{\ell}\bz\right)[t]$ is often a subroutine in more complex algorithms for various applications.
-In Section \ref{sec:linsolve}, we focus on one such application -- the von Neumann-Ulam scheme for solving linear equations~\cite{forsythe1950matrix}. 
-This has been gaining interest as a promising candidate for solving large-scale equations, owing to its ease of parallelization and asynchronous and local nature~\cite{ji2013convergence,dimov2015new,lee2014asynchronous}. 
-More generally however, this algorithm may prove useful in more complex estimation tasks which use matrix polynomials as approximators. 
+This result generalizes the existing results for stochastic matrices to arbitrary matrices, albeit with a loss in the running time scaling~\footnote{For estimating $\ell$-step transition probabilities, the running time of an equivalent algorithm in ~\cite{banerjee2015fast} is $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{1/2}\right)$ for uniform random choice of $t$.}. 
+More importantly, computing $\left(A^{\ell}\bz\right)[t]$ is often a subroutine in more complex algorithms for various matrix computations.
+In Section \ref{sec:linsolve}, we focus on one such application -- solving linear equations via the von Neumann-Ulam scheme~\cite{forsythe1950matrix}. 
+This technique has been gaining interest as a promising candidate for solving large-scale equations, owing to its ease of parallelization and asynchronous and local nature~\cite{ji2013convergence,dimov2015new,lee2014asynchronous}. 
+More generally, however, our algorithm for estimating $\left(A^{\ell}\bz\right)[t]$ may prove useful in other estimation routines which use matrix polynomials as approximators. 
 
 
 \subsection{Related Work}
 
-Previous work has addressed both the problem of estimating a single component of a matrix equation and the problem of computing matrix inversions through Monte Carlo methods. The von Neumann-Ulam algorithm shows that the inverse of $B$ by defining $A = I - B$ and running random walks over the induced graph of $A$ \cite{forsythe1950matrix}. As long as the spectral norm of $A$ is less than $1$, the expectation of these random walks is exactly $(A)_{ij}$ where $i$ is the start node and $j$ is the end node. With these methods, one can solve the system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$ provided the spectral norm $\rho(G) < 1$ since $\mathbf{x} = (I-G)^{-1}\mathbf{z}$, exactly the problem the von Neumann-Ulam algorithm solves. \cite{ji2013convergence} proved that there exist matrices $G$ satisfying $\rho(G) < 1$ but with $||G||_\infty > 1$, and that convergence of the von Neumann-Ulam algorithm is not guaranteed on this class of matrices.  Wu and Gleich address this issue by proposing a new algorithm that will converge as long as $\rho(G^+) < 1$, a weaker condition than $\rho(G) < 1$ \cite{wu2016multi}.
-
-We can also view the problem of estimating a single component $\mathbf{x}[t]$ as computing the contributions in reverse from a source distribution to $\mathbf{x}[t]$.This problem was originally addressed for the special case of computing Personalized Page Rank (PPR) in \cite{andersen2007local} via the Reverse-Push algorithm, which pushes back the unit contribution using a series of reverse operations. \cite{andersen2007local} shows that this problem for the specific case of PPR can return an $\epsilon$ accurate estimate of $ppr(v)$ assuming $ppr(v) \geq \alpha$ in time $O\left( \frac{1}{\alpha \epsilon}\right)$.
-This approach also resembles the work in \cite{lee2014asynchronous}, which describes a similar algorithm using an asynchronous procedure. \cite{lee2014asynchronous} performs a series of local updates using a residual vector, and show that with this procedure one can estimate $\mathbf{x}[t]$ satisfying $|\mathbf{x}[t] - \hat{\mathbf{x}[t]}| \leq \epsilon ||\mathbf{x}||$ in time $O\left(\min\{ \epsilon^{\ln d /\ln (|| G||_2)}, n \ln \epsilon / \ln (||G||_2)\} \right)$. 
-
-Our work is based on recently developments on bidirectional algorithms for estimating single-state transition probabilities in Markov chains.
+Our work is based on recent developments in bidirectional algorithms for estimating single-state transition probabilities in Markov chains.
 Such algorithms were first developed for \emph{reversible Markov chains} using random-walk collision statistics; in particular, Kale et al.~\cite{Kale2008} proposed such a technique for estimating length-$2\ell$ random walk transition probabilities in a \emph{regular undirected graph}.
-The main idea is that to test if a random walk goes from $s$ to $t$ in $2\ell$ steps with probability $\geq\delta$, we can generate two independent random walks of length $\ell$, starting from $s$ and $t$ respectively, and detect if they collide, i.e., terminate at the same intermediate node. 
+The main idea is that to test if a random walk goes from $s$ to $t$ in $2\ell$ steps with probability $\geq\delta$, we can generate two independent random walks of length $\ell$, starting from $s$ and $t$ respectively, and detect if they collide.
 The critical observation is that using $\sqrt{n}$ walks from $s$ and $t$ gives $n$ potential collisions, which is sufficient to estimate probabilities on the order of $1/n$.
-This argument draws from older ideas on using the \emph{birthday-paradox} in estimation problems~\cite{Motwani2007}.
+This argument draws from older ideas on using the \emph{birthday-paradox} in randomized algorithms~\cite{Motwani2007}.
 A bidirectional algorithm for general graphs was first developed by Lofgren et al.~\cite{Lofgren2014} for PageRank estimation; the argument was subsequently simplified in \cite{lofgren2016personalized}, and extended to general Markov chains in \cite{banerjee2015fast}. 
 Our work here further generalizes this line of work to computing single elements of powers of arbitrary matrices, with a particular application to solving for single elements in sparse linear systems.
+
+Our algorithm, as well as those in~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast}, are all essentially based on combining local-variational techniques with MCMC sampling techniques.
+The specific local variational iteration we use was originally proposed for computing Personalized Page Rank (PPR) in \cite{andersen2007local}; we demonstrate how their procedure extends to general matrices in Section \ref{sec:existing} (our proof for the average runtime guarantee for this algorithm is based on the analysis of~\cite{Lofgren2013}). 
+An identical variational iteration for general matrices was proposed by \cite{lee2014asynchronous}, with different termination conditions, and only worst-case guarantees -- these however can be quite weak even for very sparse matrices. 
+%\cite{lee2014asynchronous} performs a series of local updates using a residual vector, and show that with this procedure one can estimate $\mathbf{x}[t]$ satisfying $|\mathbf{x}[t] - \hat{\mathbf{x}[t]}| \leq \epsilon ||\mathbf{x}||$ in time $O\left(\min\{ \epsilon^{\ln d /\ln (|| G||_2)}, n \ln \epsilon / \ln (||G||_2)\} \right)$. 
+
+
+Monte Carlo sampling methods form another major set of algorithms for large-scale approximate matrix computations. 
+These are widely used for estimating transition probabilities and PageRank~\cite{Avrachenkov2007}.
+Their use in matrix multiplication and inversion stems from the von Neumann-Ulam scheme~\cite{forsythe1950matrix}, which is based on expanding $(I-A)^{-1}$ as an infinite power series, and then using random walks to estimate this series. 
+%As long as the spectral norm of $A$ is less than $1$, the expectation of these random walks is exactly $(A)_{ij}$ where $i$ is the start node and $j$ is the end node. 
+With these methods, one can solve the system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$ provided the spectral norm $\rho(G) < 1$. 
+Their convergence was studied in \cite{ji2013convergence}, where it was shown that there exist matrices $G$ with $\rho(G) < 1$ but  $||G||_\infty > 1$, where the von Neumann-Ulam algorithm diverges.  
+%Wu and Gleich address this issue by proposing a new algorithm that will converge as long as $\rho(G^+) < 1$, a weaker condition than $\rho(G) < 1$ \cite{wu2016multi}.
+
+
 
 
 \section{Solving Linear Equations via Series Approximation}
