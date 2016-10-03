@@ -79,7 +79,7 @@ Consider the estimator $S_{t}^{\ell}$. We have already shown that $\EE\left[S_{t
 &\leq \mathbb{P}\left[ |X -\mathbb{E}[X]| \geq \epsilon \mathbb{E}[X]\right] \leq p_{fail}
 \end{align*}
 By Lemma 5, the work done by \texttt{MCMC-SAMPLER} to achieve relative accuracy $\epsilon$ with probability $1-p_{fail}$ is 
-$$ \mathcal{O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right) $$
+$$ {O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right) $$
 
 By Lemma 6, we get that the forward and reverse work running times are equal asymptotically if we set 
 $$\delta_r = \sqrt[3]{\frac{nnz(Q) \epsilon^2\delta^2}{n\lm |\mathbf{z}|_1^2\beta^{2\lm}\ln(\lm/p_{fail}) } }$$
@@ -89,7 +89,7 @@ $$ O\left( \left(\frac{\lm^2 |\mathbf{z}|_1 nnz(Q)}{\epsilon \delta n} \right)^{
 which is in fact the total running time.
 \begin{lemma}
 The work done by \texttt{MCMC-SAMPLER} with averaged score variables $\frac{1}{n_f}\sum_{i=0}^{n_f} S_{i, t}$ returns an estimator $\widehat{\EE[S_{i, t}^l]}$ with relative accuracy $\epsilon$ with probability $1-p_{fail}$ in running time
-$$\mathcal{O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
+$${O}\left( \frac{\lm^2 |\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
 provided that $q$
 \end{lemma}
 
@@ -99,7 +99,7 @@ $$n_f \geq \frac{2 \lm^2|\mathbf{z}|_1^2 \delta_r^2 \beta^{2\lm}}{\epsilon^2\del
 random walks to ensure that $\mathbb{P}\left[ | \widehat{\EE[S_{i, t}^l]}  -  \EE[S_{i, t}^l]|  \geq  \epsilon  \EE[S_{i, t}^l] \right] \leq p_{fail}$ holds for $\lm$ sets of $\pzltest$.
 Hence, the total work in the forward estimate to ensure 
 $\mathbb{P}\left[ |X -  \EE[X]]|  \geq  \epsilon  \EE[X] \right] \leq p_{fail}$ for $\lm$ sets of estimators $X$ is
-$$\mathcal{O}\left(\frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
+$${O}\left(\frac{\lm^2 \delta_r^2|\mathbf{z}|_1^2 \beta^{2\lm}}{\epsilon^2\delta^2}\ln \left(\frac{\lm}{p_{fail}}\right)\right)$$
 \end{proof}
 
 \begin{lemma}
