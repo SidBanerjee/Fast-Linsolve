@@ -57,24 +57,10 @@ Our algorithm instead uses knowledge of $||G||_{\infty}$ to adapt its procedure,
 
 We now describe how a fast estimator for $\left(A^{\ell}\bz\right)[t]$ can be used to solve for a single element of a linear system.
 Unless specified otherwise, we use boldface letters (e.g. $\mathbf{x},\mathbf{y}$) to denote vectors in $\setR^{n\times 1}$, and capital letters (e.g. $A,Q$) to denote matrices in $\setR^{n\times n}$.
-We also use $\be_v$ to denote the indicator for index $v$, i.e., $\be_v[i] = \mathds{1}_{\{i=v\}}$. 
+We also use $\mathbf{e}_v$ denote the indicator for index $v$ (i.e., $\mathbf{e}_v[i] = \mathds{1}_{\{i=v\}}$). 
 
 
 Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $\mathbf{x}[t]$ for some given index $t\in[n]$. 
-<<<<<<< Updated upstream
-A standard technique to estimate $\mathbf{x}[t]$ is to expand it via the Neumann series and then compute the leading terms of the summation.
-In particular, if $A$ is positive definite, we can find a $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$ (Refer~\cite{dimov2015new,lee2014asynchronous} for discussions of how this can be achieved). 
-This gives us a transformed system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$, where $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
-Since we ensure $\rho(G)<1$, we can write $\mathbf{x}$ as a Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$.
-Thus to find the $t$ component of the solution vector $\mathbf{x}$, or $\mathbf{x}[t]$, we perform the operation $\ip{\mathbf{x}}{\mathbf{e}_t} = \sum_{k=0}^\infty \ip{G^k \mathbf{z}}{\mathbf{e}_t}$. 
-
-
-Computing $\mathbf{x}[t]$ thus amounts to computing $\pzlt := \ip{G^{\ell}\mathbf{z}}{\mathbf{e}_t} = \ip{\mathbf{z}}{(G^T)^{\ell}\mathbf{e}_t}$ for any $\ell$, and taking their sum over $\ell \in \{0,\ldots,\lm\}$, where $\lm$ is a finite term truncation of the power series.
-%If $Q:=G^T$ is a stochastic matrix, then prior work by Banerjee and Lofgren \cite{banerjee2015fast} shows how to compute $\pzlt$ for the special case where $\mathbf{z}$ is a probability vector and $Q$ is a \emph{stochastic matrix} (i.e., with all nonnegative entries, and each row summing to $1$). 
-%We now extend this result for any $\mathbf{z}$ and a special class of matrices $Q$.
-Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\mathbf{z}$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$. 
-To see this, note that the error from truncating upto $\lm$ terms is given by $ERR_{\lm} = \left| \ip{\mathbf{z}}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\mathbf{e}_t} \right|$. Now, for any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
-=======
 %A standard technique for this is to expand it via the Neumann series and then compute the leading terms of the summation.
 Since $A$ is positive definite, we can find a $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$ (Refer~\cite{dimov2015new,lee2014asynchronous} for discussions of how this can be achieved). 
 This gives us a transformed system $\mathbf{x} = G\mathbf{x} + \bz$, where $\bz = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
@@ -87,7 +73,6 @@ Computing $\mathbf{x}[t]$ thus amounts to computing $\pzlt := \ip{G^{\ell}\bz}{\
 %We now extend this result for any $\bz$ and a special class of matrices $Q$.
 Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\bz$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\bz||} \right)$  to bound the series truncation error by $\Delta$. 
 To see this, note that the error from truncating upto $\lm$ terms is given by $ERR_{\lm} = \left| \ip{\bz}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\be_t} \right|$. Now, for any inner product of the form $\ip{\bz}{Q^\ell \be_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\bz}{Q^\ell \be_t}| \leq ||\bz|| \cdot ||{Q}^\ell \be_t|| \leq ||\bz|| \rho(Q)^{\ell}$.
->>>>>>> Stashed changes
 Hence we have
 $ERR_{\lm} \leq %||\bz|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
  ||\bz|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)$
