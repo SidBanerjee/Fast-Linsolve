@@ -56,12 +56,12 @@ Our algorithm instead uses knowledge of $||G||_{\infty}$ to adapt its procedure,
 \section{Solving Linear Equations via Series Approximation}
 \label{sec:linsolve}
 
-We now describe how a fast estimator for $\left(A^{ell}\bz\right)[t]$ can be used to solve for a single element of a linear system.
+We now describe how a fast estimator for $\left(A^{\ell}\bz\right)[t]$ can be used to solve for a single element of a linear system.
 Unless specified otherwise, we use boldface letters (e.g. $\mathbf{x},\mathbf{y}$) to denote vectors in $\setR^{n\times 1}$, and capital letters (e.g. $A,Q$) to denote matrices in $\setR^{n\times n}$.
 
 
 Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $\mathbf{x}[t]$ for some given index $t\in[n]$. 
-A standard technique for this is to expand it via the Neumann series and then compute the leading terms of the summation.
+A standard technique to estimate $\mathbf{x}[t]$ is to expand it via the Neumann series and then compute the leading terms of the summation.
 In particular, if $A$ is positive definite, we can find a $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$ (Refer~\cite{dimov2015new,lee2014asynchronous} for discussions of how this can be achieved). 
 This gives us a transformed system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$, where $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
 Since we ensure $\rho(G)<1$, we can write $\mathbf{x}$ as a Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \mathbf{z}$.
