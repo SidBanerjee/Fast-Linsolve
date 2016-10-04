@@ -2,26 +2,25 @@
 \section{Introduction}
 \label{sec:intro}
 
-In this work, we develop a \emph{bidirectional algorithm} for estimating a \emph{single element} of the product of a matrix power and a vector.
-Formally, given any matrix $A\in\setR^{n\times n}$, vector $\bz$ and \emph{a target index $t\in\{1,2,\ldots,n\}$}, we consider the problem of computing $\pzlt := \ip{A^{\ell}\bz}{\be_t}$ for given exponent $\ell\in\mathbb{N}$.
-
-Computing $A^{\ell}\bz$ is a basic problem in matrix computations, and there is a large body of work on efficient ways of performing exact computation. 
-However, in large-scale settings (i.e., with very large values of $n$), direct computation is often infeasible, and one needs to resort to estimating $A^{\ell}\bz$.
-Moreover, we are interested in developing techniques which can estimate a single element of $A^{\ell}\bz$ in running time which is provably faster than computing the entire vector. 
+We present a \emph{bidirectional algorithm} for estimating a \emph{single element} of the product of a matrix power and a vector.
+Formally, given any matrix $A\in\setR^{n\times n}$, vector $\bz$ and \emph{a target index $t\in\{1,2,\ldots,n\}$}, we consider the problem of computing $\pzlt := \left(A^{\ell}\bz\right)[t]$ for given exponent $\ell\in\mathbb{N}$.
+This is a basic primitive in many matrix algorithms, and there is a large body of work on efficient ways of doing exact computations. 
+However, such techniques are often infeasible in large-scale settings (i.e., with very large values of $n$), and one needs to resort to approximate computation of $A^{\ell}\bz$.
+In particular, we are interested in developing techniques which can estimate a single element of $A^{\ell}\bz$ in time which is provably faster than computing the entire vector. 
 
 The problem of estimating $\pzlt$ has gained attention recently in the context of estimating random-walk probabilities, in particular, for Personalized PageRank~\cite{Page1999}, and other network centrality metrics. 
 %Though PageRank had fast estimation algorithms based on iterative~\cite{Andersen2007} and MCMC~\cite{Avrachenkov2007} techniques, these 
-A recent line of work~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast} show how to develop fast bidirectional algorithms for this problem, and more generally, for settings where $A^T$ is a \emph{stochastic} matrix and $\bz$ is a probability distribution.
-Our work generalizes these techniques to general $A,\bz$; in particular, our main result can be paraphrased as follows:
+A recent line of work~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast} shows how to develop fast bidirectional algorithms for Pagerank, and more generally, for settings where $A^T$ is a \emph{stochastic} matrix and $\bz$ is a probability distribution.
+This paper extends these techniques to more general $A,\bz$; in particular, our main result can be paraphrased as follows:
 \begin{proposition}
-Given matrix $A$ (with $||A||_1\leq 1$), vector $z$ (with $||z||_1\leq 1$) and any index $t$ in $[n]$, Algorithm \texttt{BIDIR-MATRIX-POWER} (cf. Section \ref{ssec:bidiralgo}) returns estimate $\pzltest$ such that with high probability $|\pzlt-\pzltest|<\max\{\epsilon\pzlt,1/n\}$, with average running time of $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{2/3}\right)$ for uniform random choice of $t$.
+\emph{Given matrix $A$ (with $||A||_1\leq 1$), vector $z$ (with $||z||_1\leq 1$) and any index $t$ in $[n]$, Algorithm \texttt{BIDIR-MATRIX-POWER} (cf. Section \ref{ssec:bidiralgo}) returns an estimate $\pzltest$ such that $|\pzlt-\pzltest|<\max\{\epsilon\pzlt,1/n\}$ with high probability; moreover, it has an average running time of $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{2/3}\right)$ for a uniform random choice of $t$.}
 \end{proposition}	
 
-This result generalizes the existing results for stochastic matrices to arbitrary matrices, albeit with a loss in the running time scaling~\footnote{For $\ell$-step transition probabilities, the running time of an equivalent algorithm in ~\cite{banerjee2015fast} is $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{1/2}\right)$ for uniform random $t$.}. 
-More importantly, computing $\left(A^{\ell}\bz\right)[t]$ is often a subroutine in more complex algorithms for various matrix computations.
-In Section \ref{sec:linsolve}, we focus on one such application -- solving linear equations via the von Neumann-Ulam scheme~\cite{forsythe1950matrix}. 
+This generalizes the existing results for stochastic matrices, albeit with a loss in the running time scaling~\footnote{For $\ell$-step transition probabilities, the running time of an equivalent algorithm in ~\cite{banerjee2015fast} is $\widetilde{O}\left(\left(nnz(A)/\epsilon\right)^{1/2}\right)$ for uniform random $t$.}. 
+Its significance arises from the fact that computing $\left(A^{\ell}\bz\right)[t]$ is often a subroutine in more complex algorithms for various matrix computations.
+In Section \ref{sec:linsolve}, we highlight one such application -- solving linear equations via the von Neumann-Ulam scheme~\cite{forsythe1950matrix}. 
 This technique has been gaining interest as a promising candidate for solving large-scale equations, owing to its ease of parallelization and asynchronous and local nature~\cite{ji2013convergence,dimov2015new,lee2014asynchronous}. 
-More generally, however, our algorithm for estimating $\left(A^{\ell}\bz\right)[t]$ may prove useful in other estimation routines which use matrix polynomials as approximators. 
+More generally, our algorithm for estimating $\left(A^{\ell}\bz\right)[t]$ may prove useful in other estimation routines which use matrix polynomials as approximators. 
 
 
 \subsection{Related Work}
@@ -31,22 +30,22 @@ Kale et al.~\cite{Kale2008} proposed such a technique for estimating length-$2\e
 The main idea is that to test if a random walk goes from $s$ to $t$ in $2\ell$ steps with probability $\geq\delta$, we can generate two independent random walks of length $\ell$, starting from $s$ and $t$ respectively, and detect if they collide.
 The critical observation is that using $\sqrt{n}$ walks from $s$ and $t$ gives $n$ potential collisions, which is sufficient to estimate probabilities on the order of $1/n$.
 %®This argument draws from older ideas on using the \emph{birthday-paradox} in randomized algorithms~\cite{Motwani2007}.
-A bidirectional algorithm for general graphs was first developed by Lofgren et al.~\cite{Lofgren2014} for PageRank estimation; the argument was subsequently simplified in \cite{lofgren2016personalized}, and extended to general Markov chains in \cite{banerjee2015fast}. 
+A bidirectional estimator in general graphs was first developed by Lofgren et al.~\cite{Lofgren2014} for PageRank estimation; this was subsequently simplified in \cite{lofgren2016personalized}, and extended to general Markov chains in \cite{banerjee2015fast}. 
 Our work here generalizes this line of work to computing single elements of powers of arbitrary matrices.
 %, with a particular application to solving for single elements in sparse linear systems.
 
 Our algorithm, as well as those in~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast}, are all essentially based on combining local-variational techniques with MCMC sampling techniques.
 The specific local variational iteration we use was originally proposed for computing Personalized Page Rank (PPR) in \cite{andersen2007local}; we demonstrate how their procedure extends to general matrices in Section \ref{sec:existing}. 
-An identical variational iteration for general matrices was proposed by \cite{lee2014asynchronous}, with different termination conditions, and only worst-case guarantees, which in general can be quite weak even for very sparse matrices. 
+An identical iteration for general matrices was considered in \cite{lee2014asynchronous}, with different termination conditions; they provide worst-case running time guarantees, which, however, can be quite weak even in sparse matrices. 
 %\cite{lee2014asynchronous} performs a series of local updates using a residual vector, and show that with this procedure one can estimate $\mathbf{x}[t]$ satisfying $|\mathbf{x}[t] - \hat{\mathbf{x}[t]}| \leq \epsilon ||\mathbf{x}||$ in time $O\left(\min\{ \epsilon^{\ln d /\ln (|| G||_2)}, n \ln \epsilon / \ln (||G||_2)\} \right)$. 
 
 
-Monte Carlo sampling methods form another major set of algorithms for large-scale approximate matrix computations. 
+Monte Carlo sampling methods form an alternate approach for large-scale approximate matrix computations. 
 These are widely used for estimating transition probabilities and PageRank~\cite{Avrachenkov2007}.
-Their use in matrix multiplication and inversion stems from the von Neumann-Ulam scheme~\cite{forsythe1950matrix}, which is based on expanding $(I-A)^{-1}$ as an infinite power series, and then using random walks to estimate this series. 
+Their use in matrix multiplication and inversion can be traced back to the von Neumann-Ulam scheme~\cite{forsythe1950matrix}, which is based on expanding $(I-A)^{-1}$ as an infinite power series, and then using random walks to estimate this series. 
 %As long as the spectral norm of $A$ is less than $1$, the expectation of these random walks is exactly $(A)_{ij}$ where $i$ is the start node and $j$ is the end node. 
-With these methods, one can solve the system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$ provided the spectral norm $\rho(G) < 1$. 
-Their convergence was studied in \cite{ji2013convergence}, where it was shown that there exist matrices $G$ with $\rho(G) < 1$ but  $||G||_\infty > 1$, where the von Neumann-Ulam algorithm diverges.  
+With these methods, one can solve the system $\mathbf{x} = G\mathbf{x} + \bz$ provided the spectral norm $\rho(G) < 1$. 
+Their convergence was studied in \cite{ji2013convergence}, where the authors present matrices $G$ with $\rho(G) < 1$ but  $||G||_\infty > 1$, where the von Neumann-Ulam algorithm diverges.  
 Our algorithm instead uses knowledge of $||G||_{\infty}$ to adapt its procedure, thereby guaranteeing accurate estimates.
 %Wu and Gleich address this issue by proposing a new algorithm that will converge as long as $\rho(G^+) < 1$, a weaker condition than $\rho(G) < 1$ \cite{wu2016multi}.
 
@@ -58,9 +57,11 @@ Our algorithm instead uses knowledge of $||G||_{\infty}$ to adapt its procedure,
 
 We now describe how a fast estimator for $\left(A^{\ell}\bz\right)[t]$ can be used to solve for a single element of a linear system.
 Unless specified otherwise, we use boldface letters (e.g. $\mathbf{x},\mathbf{y}$) to denote vectors in $\setR^{n\times 1}$, and capital letters (e.g. $A,Q$) to denote matrices in $\setR^{n\times n}$.
+We also use $\be_v$ to denote the indicator for index $v$, i.e., $\be_v[i] = \mathds{1}_{\{i=v\}}$. 
 
 
 Given a linear system $\mathbf{y} = A\mathbf{x}$, where $A$ is a positive definite matrix, our aim is to estimate $\mathbf{x}[t]$ for some given index $t\in[n]$. 
+<<<<<<< Updated upstream
 A standard technique to estimate $\mathbf{x}[t]$ is to expand it via the Neumann series and then compute the leading terms of the summation.
 In particular, if $A$ is positive definite, we can find a $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$ (Refer~\cite{dimov2015new,lee2014asynchronous} for discussions of how this can be achieved). 
 This gives us a transformed system $\mathbf{x} = G\mathbf{x} + \mathbf{z}$, where $\mathbf{z} = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
@@ -73,13 +74,27 @@ Computing $\mathbf{x}[t]$ thus amounts to computing $\pzlt := \ip{G^{\ell}\mathb
 %We now extend this result for any $\mathbf{z}$ and a special class of matrices $Q$.
 Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\mathbf{z}$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\mathbf{z}||} \right)$  to bound the series truncation error by $\Delta$. 
 To see this, note that the error from truncating upto $\lm$ terms is given by $ERR_{\lm} = \left| \ip{\mathbf{z}}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\mathbf{e}_t} \right|$. Now, for any inner product of the form $\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\mathbf{z}}{Q^\ell \mathbf{e}_t}| \leq ||\mathbf{z}|| \cdot ||{Q}^\ell \mathbf{e}_t|| \leq ||\mathbf{z}|| \rho(Q)^{\ell}$.
+=======
+%A standard technique for this is to expand it via the Neumann series and then compute the leading terms of the summation.
+Since $A$ is positive definite, we can find a $\gamma$ such that $G = I - \gamma A$ satisfies $\rho(G) < 1$ (Refer~\cite{dimov2015new,lee2014asynchronous} for discussions of how this can be achieved). 
+This gives us a transformed system $\mathbf{x} = G\mathbf{x} + \bz$, where $\bz = \gamma \mathbf{y}$ and $G = I - \gamma A$. 
+Since we ensure $\rho(G)<1$, we can write $\mathbf{x}$ as a Neumann series: $\mathbf{x} = \sum_{k=0}^\infty G^k \bz$.
+Finally, we can compute $\mathbf{x}[t]$ via $\ip{\mathbf{x}}{\be_t} = \sum_{k=0}^\infty \ip{G^k \bz}{\be_t}$. 
+
+
+Computing $\mathbf{x}[t]$ thus amounts to computing $\pzlt := \ip{G^{\ell}\bz}{\be_t} = \ip{\bz}{(G^T)^{\ell}\be_t}$ for any $\ell$, and taking their sum over $\ell \in \{0,\ldots,\lm\}$, where $\lm$ is a finite term truncation of the power series.
+%If $Q:=G^T$ is a stochastic matrix, then prior work by Banerjee and Lofgren \cite{banerjee2015fast} shows how to compute $\pzlt$ for the special case where $\bz$ is a probability vector and $Q$ is a \emph{stochastic matrix} (i.e., with all nonnegative entries, and each row summing to $1$). 
+%We now extend this result for any $\bz$ and a special class of matrices $Q$.
+Note that the error from truncating the series to $\lm$ can be determined a priori given bounds for $\bz$ and $\rho(G)$ -- in particular, we can set $\lm \geq \frac{1}{\ln \rho(G)} \ln \left(\frac{\Delta(1 - \rho(G))}{||\bz||} \right)$  to bound the series truncation error by $\Delta$. 
+To see this, note that the error from truncating upto $\lm$ terms is given by $ERR_{\lm} = \left| \ip{\bz}{ Q^{\lm + 1} \sum_{\ell= 0}^\infty Q^\ell\be_t} \right|$. Now, for any inner product of the form $\ip{\bz}{Q^\ell \be_t}$, by the Cauchy - Schwarz inequality we have $|\ip{\bz}{Q^\ell \be_t}| \leq ||\bz|| \cdot ||{Q}^\ell \be_t|| \leq ||\bz|| \rho(Q)^{\ell}$.
+>>>>>>> Stashed changes
 Hence we have
-$ERR_{\lm} \leq %||\mathbf{z}|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
- ||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)$
-Using $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right)$, we get $ERR_{\lm} \leq \Delta$.
+$ERR_{\lm} \leq %||\bz|| \rho(Q)^{\lm+1}\left( \sum_{\ell = 0}^{\infty}{\rho(Q)^{\ell}} \right) \\
+ ||\bz|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right)$
+Using $\lm \geq \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\bz||}\right)$, we get $ERR_{\lm} \leq \Delta$.
 %\begin{align*}
-%||\mathbf{z}|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right) =  \Delta \\
-%(\lm + 1)\ln \rho(Q) = \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) \\
-%$\lm = \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\mathbf{z}||}\right) - 1$
+%||\bz|| \rho(Q)^{\lm+1}\left(\frac{1}{1 - \rho(Q)} \right) =  \Delta \\
+%(\lm + 1)\ln \rho(Q) = \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\bz||}\right) \\
+%$\lm = \frac{1}{\ln \rho(Q)}  \ln \left(\frac{\Delta(1 - \rho(Q)) }{||\bz||}\right) - 1$
 
 %Since we can a priori bound the error resulting from truncating the von Neumann series to $\lm$, we will focus on the problem of estimating $\pzlt$. It is then straightforward to develop overall error bounds by combining the results of the additive truncation error $\Delta$ and the relative error guarantees we prove for our bidirectional algorithm in Theorem 1. 

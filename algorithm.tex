@@ -4,13 +4,12 @@
 
 Based on the above discussion, we henceforth focus on developing bidirectional algorithms for estimating $\pzlt =\ip{\bz}{Q^{\ell}\mathbf{e}_t}$.
 To do so, we first describe two existing algorithms that we use as primitives for our procedure: a forward MCMC technique based on the von Neumann-Ulam scheme~\cite{Wasow1952,ji2013convergence}, and a local variational method proposed by Andersen et al.~\cite{andersen2007local} for computing PageRank, and used by Lee et al.~\cite{lee2014asynchronous} in this setting. 
-We present these along with statements of their correctness and running time -- some of these results follow directly from previous work (as we note in the appropriate sections), and their proofs are included here mainly for the sake of completeness.
+We present these along with their accuracy and running time guarantees -- some of these results follow directly from previous work (as we note in the appropriate sections), and we include their proofs here mainly for the sake of completeness.
 
-We first introduce some notation which will help us better describe the algorithm.
+We first introduce some notation which will help us better visualize the algorithm.
 Drawing parallels to the case where $Q$ is a stochastic matrix and $\bz$ an element in the $n$-dimensional simplex (as in~\cite{banerjee2015fast}), we define a (weighted) directed graph $\G_Q(\V,\E)$ with states $\V = [n]$, and edges $(i,j)\in \E$ if $Q_{ij}\neq 0$. 
 Each edge $(i,j)\in\E$ has an associated weight $w_{ij}\in\setR$, which we describe later.
 We refer to the label for a node $v\in V$ (i.e., a dimension $v\in[n]$) as a \emph{dimension-index}, and the exponent of $Q$ as the \emph{step-index}.
-We also use $\mathbf{e}_v$ denote the indicator for index $v$ (i.e., $\mathbf{e}_v[i] = \mathds{1}_{i=v}$). 
 Finally, we define $Q^+$ to denote the matrix with $Q^+_{ij} = |Q_{ij}|$. 
 %Many of our bounds depend on the norm $||Q^+||_{\infty} = ||Q||_{\infty}$, i.e., the maximum (absolute) row-sum of $Q$
 %; for ease of notation, we use the shorthand $\beta := ||Q||_{\infty}$. 
