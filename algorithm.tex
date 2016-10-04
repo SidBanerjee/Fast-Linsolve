@@ -19,15 +19,13 @@ Finally, we define $Q^+$ to denote the matrix with $Q^+_{ij} = |Q_{ij}|$.
 \label{ssec:reverse}
 
 One approach for estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}\be_t$. 
-In settings where $n$ is large enough such that a direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
+In settings where $n$ is large such that direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
-To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} operation corresponding to the DP iteration. 
-This is directly adapted from the algorithm in Andersen \cite{andersen2007local} for the personal PageRank problem (and more generally for a stochastic matrix $Q$); however, it is straightforward to show that the invariant from \cite{andersen2007local} holds for any matrix $Q$ (it does not require $Q$ to be full rank, as we have assumed).
+To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} local iteration. 
+Essentially, this is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$, which adaptively exploits any sparsity in the computation.
+This operation was defined by Andersen et al. \cite{andersen2007local}, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
+The critical associated invariant in Lemma \ref{lem:pushinvariant} was first shown for Personalized PageRank\cite{andersen2007local}; it however holds more generally for any matrix $Q$ (as we show below; also see~\cite{lee2014asynchronous}).
  
-The \texttt{REVERSE-PUSH} operation is a standard dynamic programming iteration which is used to compute an estimate $\pzltest$ by proceeding `in reverse' from $t$. 
-Essentially,\texttt{REVERSE-PUSH} is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$ ; instead of performing a full power-iteration, it adaptively exploits any sparsity in the computation.
-This operation was defined in \cite{andersen2007local} as specified below, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
-
 
 For each step-index $k \in\{0,1,\ldots,\ell \}$, we store two vectors: the \emph{estimate vector} $\qest{k}$ and the \emph{residual vector} $\res{k}$.
 We initialize all $\res{k},\qest{k}, k\in[\ell]$ to $0$, except for $\res{0}$, which we set to $\mathbf{e}_t$.
@@ -37,7 +35,7 @@ Now, given any dimension-index $v\in[n]$ and step-index $k \in[\ell]$, the \text
 \label{alg:push}
 \begin{algorithmic}[1]
 \REQUIRE Matrix $Q$, estimates $\qest{k}$, residuals $\res{k},\res{k+1}$
-\RETURN New estimates $\qestnew{k}$ and residuals $\resnew{k}$ computed as:
+\RETURN New estimates $\qestnew{k}$, residuals $\resnew{k}$ computed as:
 \begin{align*}
 	\qestnew{k} &\leftarrow \qest{k} + \ip{\res{k}}{\mathbf{e}_v}\mathbf{e}_v \\
 	\resnew{k} &\leftarrow \res{k} - \ip{\res{k}}{\mathbf{e}_v}\mathbf{e}_v \\
@@ -46,7 +44,7 @@ Now, given any dimension-index $v\in[n]$ and step-index $k \in[\ell]$, the \text
 \end{algorithmic}
 \end{algorithm}    
 
-The \texttt{REVERSE-PUSH} iteration results in the following critical invariant for the estimate and residual vectors:
+%The \texttt{REVERSE-PUSH} iteration results in the following critical invariant for the estimate and residual vectors:
 \begin{lemma}
 \label{lem:pushinvariant}
 \emph{Given the initialization described above, after any sequence of \texttt{REVERSE-PUSH} operations, and for any $\bz\in\setR^n$ and $\ell\geq 0$, the estimates $\{\mathbf{q}_t^k\}$ and residuals $\{\mathbf{r}_t^k\}$  satisfy the following invariant:
@@ -57,7 +55,7 @@ The \texttt{REVERSE-PUSH} iteration results in the following critical invariant 
 \end{lemma}
 
 The above invariant was first stated in~\cite{andersen2007local} for the case of PageRank vectors. 
-For the sake of completeness, we present a proof below for general matrices, adapted from~\cite{Lofgren2014}; an identical invariant is given in~\cite{lee2014asynchronous}.
+For the sake of completeness, we present a proof (adapted from~\cite{Lofgren2014}) for general matrices; an identical invariant was also presented in~\cite{lee2014asynchronous}.
 
 \begin{proof}
 For our chosen initialization (i.e., $\res{0} = \mathbf{e}_t$, and all other estimate and residual vectors set to $0$), the invariant simplifies to $\mathbf{p}_\bz^{\ell}[t] = \ip{\bz }{Q^{\ell}\mathbf{e}_t}$ which is true by definition.
@@ -87,7 +85,7 @@ The above invariant gives a natural iterative algorithm for computing $\pzlt$: p
 Depending on the norm we choose to control, we can get a bound for the error via H{\"o}lder's inequality.
 In particular, placing an upper bound on the infinity norm (i.e., the maximum absolute value of the residual vectors) of some chosen $\delta_r>0$ gives us the error bounds: $|\pzlt - \langle\bz,\mathbf{q}_t^{\ell}\rangle|\leq ||x||_1\delta_r||Q||_{\infty}^{\ell}$~\footnote{This approach was used in~\cite{andersen2007local,Lofgren2014,banerjee2015fast}; an alternative is to control $||r_t^k||_2$ giving error bounds in terms of $||x||_2$, which was suggested in ~\cite{lee2014asynchronous}.}.
 
-\begin{algorithm}[ht]
+\begin{algorithm}[!ht]
 \caption{\texttt{REVERSE-LOCAL-UPDATE}$(t,Q, \ell, \delta_r)$}
 \label{alg:rwork}
 \begin{algorithmic}[1]
