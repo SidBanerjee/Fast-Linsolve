@@ -3,7 +3,7 @@
 \label{sec:intro}
 
 We present a \emph{bidirectional algorithm} for estimating a \emph{single element} of the product of a matrix power and a vector.
-Formally, given any matrix $A\in\setR^{n\times n}$, vector $\bz$ and \emph{a target index $t\in\{1,2,\ldots,n\}$}, we consider the problem of computing $\pzlt := \left(A^{\ell}\bz\right)[t]$ for given exponent $\ell\in\mathbb{N}$.
+Formally, given any matrix $A\in\setR^{n\times n}$, vector $\bz$ and \emph{a target index $t\in\{1,2,\ldots,n\}$}, we consider the problem of computing $\pzlt := \left(A^{\ell}\bz\right)[t]$ for a given exponent $\ell\in\mathbb{N}$.
 This is a basic primitive in many matrix algorithms, and there is a large body of work on efficient ways of doing exact computations. 
 However, such techniques are often infeasible in large-scale settings (i.e., with very large values of $n$), and one needs to resort to approximate computation of $A^{\ell}\bz$.
 In particular, we are interested in developing techniques which can estimate a single element of $A^{\ell}\bz$ in time which is provably faster than computing the entire vector. 
@@ -36,7 +36,7 @@ Our work here generalizes this line of work to computing single elements of powe
 
 Our algorithm, as well as those in~\cite{Lofgren2014,lofgren2016personalized,banerjee2015fast}, are all essentially based on combining local-variational techniques with MCMC sampling techniques.
 The specific local variational iteration we use was originally proposed for computing Personalized Page Rank (PPR) in \cite{andersen2007local}; we demonstrate how their procedure extends to general matrices in Section \ref{sec:existing}. 
-An identical iteration for general matrices was considered in \cite{lee2014asynchronous}, with different termination conditions; they provide worst-case running time guarantees, which, however, can be quite weak even in sparse matrices. 
+An identical iteration for general matrices was considered in \cite{lee2014asynchronous} with different termination conditions; they provide worst-case running time guarantees, which, however, can be quite weak even in sparse matrices. 
 %\cite{lee2014asynchronous} performs a series of local updates using a residual vector, and show that with this procedure one can estimate $\mathbf{x}[t]$ satisfying $|\mathbf{x}[t] - \hat{\mathbf{x}[t]}| \leq \epsilon ||\mathbf{x}||$ in time $O\left(\min\{ \epsilon^{\ln d /\ln (|| G||_2)}, n \ln \epsilon / \ln (||G||_2)\} \right)$. 
 
 
@@ -45,7 +45,7 @@ These are widely used for estimating transition probabilities and PageRank~\cite
 Their use in matrix multiplication and inversion can be traced back to the von Neumann-Ulam scheme~\cite{forsythe1950matrix}, which is based on expanding $(I-A)^{-1}$ as an infinite power series, and then using random walks to estimate this series. 
 %As long as the spectral norm of $A$ is less than $1$, the expectation of these random walks is exactly $(A)_{ij}$ where $i$ is the start node and $j$ is the end node. 
 With these methods, one can solve the system $\mathbf{x} = G\mathbf{x} + \bz$ provided the spectral norm $\rho(G) < 1$. 
-Their convergence was studied in \cite{ji2013convergence}, where the authors present matrices $G$ with $\rho(G) < 1$ but  $||G||_\infty > 1$, where the von Neumann-Ulam algorithm diverges.  
+Their convergence was studied in \cite{ji2013convergence}, where the authors present matrices $G$ with $\rho(G) < 1$ but  $||G||_\infty > 1$ resulting in the von Neumann-Ulam algorithm's divergence.  
 Our algorithm instead uses knowledge of $||G||_{\infty}$ to adapt its procedure, thereby guaranteeing accurate estimates.
 %Wu and Gleich address this issue by proposing a new algorithm that will converge as long as $\rho(G^+) < 1$, a weaker condition than $\rho(G) < 1$ \cite{wu2016multi}.
 

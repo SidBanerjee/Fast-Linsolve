@@ -19,16 +19,16 @@ Finally, we define $Q^+$ to denote the matrix with $Q^+_{ij} = |Q_{ij}|$.
 \label{ssec:reverse}
 
 One approach for estimating $\pzlt$ is via a standard power iteration for computing $Q^{\ell}\be_t$. 
-In settings where $n$ is large such that direct power iteration is infeasible, one can use a `local' power iteration, which essentially corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
+In settings where $n$ is large such that direct power iteration is infeasible, one can use a `local' power iteration, which corresponds to a natural dynamic programming update. Informally, the algorithm estimates $\pzlt$ by starting off with a mass of $1$ on dimension-index $t$, and then `pushing' this mass in reverse along the edges of graph $G_Q$. 
 
 To describe this \texttt{REVERSE-LOCAL-UPDATE} algorithm, we first define a \texttt{REVERSE-PUSH} local iteration. 
 Essentially, this is a local power-iteration for computing $Q^{\ell}\mathbf{e}_t$, which adaptively exploits any sparsity in the computation.
-This operation was defined by Andersen et al. \cite{andersen2007local}, and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
-The critical associated invariant in Lemma \ref{lem:pushinvariant} was first shown for Personalized PageRank\cite{andersen2007local}; it however holds more generally for any matrix $Q$ (as we show below; also see~\cite{lee2014asynchronous}).
+This operation was defined by Andersen et al. \cite{andersen2007local} and subsequently used as a primitive in \cite{banerjee2015fast, lee2014asynchronous}.
+The critical associated invariant in Lemma \ref{lem:pushinvariant} was first shown for Personalized PageRank\cite{andersen2007local}; however, it holds more generally for any matrix $Q$ (as we show below; also see~\cite{lee2014asynchronous}).
  
 
 For each step-index $k \in\{0,1,\ldots,\ell \}$, we store two vectors: the \emph{estimate vector} $\qest{k}$ and the \emph{residual vector} $\res{k}$.
-We initialize all $\res{k},\qest{k}, k\in[\ell]$ to $0$, except for $\res{0}$, which we set to $\mathbf{e}_t$.
+We initialize all $\res{k},\qest{k}, k\in[\ell]$ to $0$ except for $\res{0}$, which we set to $\mathbf{e}_t$.
 Now, given any dimension-index $v\in[n]$ and step-index $k \in[\ell]$, the \texttt{REVERSE-PUSH} operation iteratively updates these vectors as follows:
 \begin{algorithm}[!ht]
 \caption{\texttt{REVERSE-PUSH}$(t,v,k)$}
@@ -118,7 +118,7 @@ In particular, note that if $||Q||_{\infty}\leq 1$ and $\ell=O(1)$, then the ave
 Let $T(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q,\ell,\delta_r)$.
 Recall we define $Q^+$ as the matrix with $Q^+_{ij} = |Q_{ij}|$; let $\hat{T}(t)$ be the running time of \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$. 
 Then we have that for every matrix $Q$ and every $t$, we have $\hat{T}(t)>T(t)$ -- this follows from the fact that any cancellation between positive and negative residuals in \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$ can only decrease the number of iterations. 
-Also, note that under $Q^+$, since all residuals are positive, we have that for any $k\leq\ell,v\in[n]$, the residuals satisfy $\mathbf{r}_t^{k}[v]\leq \left(\mathbf{e}_v^TQ^\ell\right)[t]$.
+Also, note that under $Q^+$ all residuals are positive, so we have for any $k\leq\ell,v\in[n]$, the residuals satisfy $\mathbf{r}_t^{k}[v]\leq \left(\mathbf{e}_v^TQ^\ell\right)[t]$.
 
 Now let $d_i := \sum_j\mathds{1}_{\{Q_{ij}\neq 0\}}$, i.e., the support of $i^{th}$ row in $Q$, and $\mathbf{r}_t^{k}$ denote the residuals under \texttt{REVERSE-LOCAL-UPDATE}$(t,Q^+,\ell,\delta_r)$. 
 %Recall we define $\beta = \max\{1,||Q||_{\infty}\}$.
